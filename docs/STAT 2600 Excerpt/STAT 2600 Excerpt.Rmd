@@ -1,5 +1,5 @@
 ---
-title: "Stats 2600 Excerpt"
+title: "STAT 2600 - Introduction to Data Science Excerpt"
 author: "Anna Sanders"
 date: "12/22/2021"
 output: html_document
