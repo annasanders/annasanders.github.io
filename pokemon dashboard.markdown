@@ -5,6 +5,11 @@ permalink: /r/pkmn_dshbrd
 ---
 ### [Live App Here!](https://annasanders.shinyapps.io/Pokemon_dashboard/)
 
+My favorite video game/hobby is Pokémon. Creating a dashboard to search and display all of the available Pokémon 
+was a great way to start learning how to program shiny dashboards in R. I am particularly proud of learning how to 
+create, add and delete lines from, and reference a newly created table with the app itself. The data was taken from 
+[Kaggle](https://www.kaggle.com/mariotormo/complete-pokemon-dataset-updated-090420), and the pictures come from [serebii](https://www.serebii.net/index2.shtml). 
+
 ### Shiny App Code
 
 ```r

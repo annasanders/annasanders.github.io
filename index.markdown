@@ -10,14 +10,16 @@ title: About Me
 
 👀 I’m interested in developing my skills in R and R Studio, as well as learning Python for Data Science.
 
-🌱 I’m currently learning how to use GitHub and Jekyll 😁
+🌱 I’m improving my data science skills in R and Python (using R Studio and Jupyter Notebooks)
 
 📫 How to reach me: axsanders6@gmail.com
 
+<br>
 
 🐢🐢🐢🐢🐢🐢🐢🐢🐢🐢 Be Kind: this website is still in progress 🐢🐢🐢🐢🐢🐢🐢🐢🐢🐢 
 
+<br>
 
-#### What I'm Currently Proud Of 
+### What I'm Currently Proud Of 
 
 I have a working R Shiny App based off of my favorite Video Game Series: Pokémon. Find the link and code [here]({{ site.url }} /r/pkmn_dshbrd)!
