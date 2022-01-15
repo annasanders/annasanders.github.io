@@ -12,7 +12,7 @@ title: 🦕 About Me
 
 🌱 I’m improving my data science skills in R and Python (using R Studio and Jupyter Notebooks)
 
-📫 How to reach me: axsanders6@gmail.com
+📫 How to reach me: [axsanders6@gmail.com](mailto:axsanders6@gmail.com)
 
 <br>
 
