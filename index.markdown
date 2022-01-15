@@ -16,10 +16,15 @@ title: About Me
 
 <br>
 
-🐢🐢🐢🐢🐢🐢🐢🐢🐢🐢 Be Kind: this website is still in progress 🐢🐢🐢🐢🐢🐢🐢🐢🐢🐢 
+## 🐢🐢🐢🐢🐢🐢🐢🐢🐢🐢 Be Kind: this website is still in progress 🐢🐢🐢🐢🐢🐢🐢🐢🐢🐢 
 
 <br>
 
-### What I'm Currently Proud Of 
+### What I'm Currently Proud Of: 
 
 I have a working R Shiny App based off of my favorite Video Game Series: Pokémon. Find the link and code [here]({{ site.url }} /r/pkmn_dshbrd)!
+
+
+### Recent Website Updates: 
+
+Website now uses markdown pages to showcase most coding projects within github.io (no more PDFs, within reason)!
