@@ -4,7 +4,7 @@ title: R Projects
 permalink: /r
 ---
 
-### [Pokémon Data Analysis]({{ site.url }}/assets/STAT 2600 Excerpt temp.pdf)
+### [Pokémon Data Analysis]({{ site.url }}/r/STAT_2600_excerpt)
 A final research paper for STAT 2600 - Introduction to Data Science. The class was structured into different groups for the entire semester.
 We would each complete a weekly lab with a group section and individual section analyzing different data sets to learn different R and R Studio skills.
 For our final lab, my group decided to analyze Pokémon video game data. This excerpt includes my section, as well as the overall project description and goals. 
