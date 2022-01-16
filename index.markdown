@@ -8,11 +8,13 @@ title: 🦕 About Me
 
 👋 Hi, I’m Anna Sanders!
 
-👀 I’m interested in developing my skills in R and R Studio, as well as learning Python for Data Science.
+🌞 I’m interested in developing my skills in R and R Studio, as well as learning Python for Data Science
 
 🌱 I’m improving my data science skills in R and Python (using R Studio and Jupyter Notebooks)
 
 📫 How to reach me: [axsanders6@gmail.com](mailto:axsanders6@gmail.com)
+
+✨ Fun fact: I enjoy using emojis 😁
 
 <br>
 
