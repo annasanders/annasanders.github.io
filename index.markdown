@@ -30,4 +30,4 @@ I have a working R Shiny App based off of my favorite Video Game Series: Pokémo
 
 ## 🗺 Recent Website Updates: 
 
-Website now uses markdown pages to showcase most coding projects within github.io (no more PDFs, within reason)!
+More Python mini-projects!
