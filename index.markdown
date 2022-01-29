@@ -30,4 +30,4 @@ I have a working R Shiny App based off of my favorite Video Game Series: Pokémo
 
 ## 🗺 Recent Website Updates: 
 
-More Python mini-projects!
+Postgre SQL project and new syntax highlighting theme!
