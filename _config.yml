@@ -36,6 +36,10 @@ header_pages:
 - python.markdown
 - other.markdown
 
+# Markdown Settings
+markdown: kramdown
+highlighter: rouge
+
 #minima: 
 #    skin: solarized-dark
 #plugins:
