@@ -126,11 +126,9 @@ pkm_ui_adv2 <- fluidPage(
                                 DT::dataTableOutput("found_pkmn", width = "110%"), #table width with scrollable table (in datatable options),
                                 
                                 actionButton("add_pkmn", "Add Pokemon to List", class = "btn-primary", width = "50%"),
-                                h6("Open the Second Tab Before Adding Pokemon"),
                                 
                                 
-                                uiOutput("pkmn_img1"),
-                                h6("Images from Serebii.net"),
+                                uiOutput("pkmn_img1") 
                          ))),
               
               tabPanel("My Team",
@@ -164,7 +162,6 @@ pkm_server_adv2 <- function(input,output){
   # output$testing <- renderText({paste(pokemon2.2[(update_pkmn()$`index`[input$found_pkmn_rows_selected]+1),])})
   ## output$testing <- renderText({paste("All" %in% input$Pkmn_Type_1)})
   #output$testing <- renderText(paste(pokemon_list_r$x))
-  # output$testing <- renderText(paste(((((input$Pkmn_Type_1)) %in% ((input$Pkmn_Type_2))) == TRUE)))
   
   output$found_pkmn <- DT::renderDataTable(DT::datatable(
     update_pkmn(), options = list(lengthMenu = c(10, 25, 50), pageLength = 10, autoWidth = TRUE, scrollX = TRUE, columnDefs = list(list(visible=FALSE, targets=c(0,1)))), selection = "single"
@@ -177,14 +174,10 @@ pkm_server_adv2 <- function(input,output){
     # Main Bar
     if ((is.null(isolate(input$Pkmn_Type_1)) == TRUE) & (is.null(isolate(input$Pkmn_Type_2)) == TRUE))
     {}
-    else if ((is.null(isolate(input$Pkmn_Type_1)) == TRUE) & ((is.null(isolate(input$Pkmn_Type_2)) == FALSE) || ("All" %in% input$Pkmn_Type_2 == FALSE)))
-    {pokemon2.1_s <- pokemon2.1_s[pokemon2.1_s$`Type 2` %in% input$Pkmn_Type_2,]}
-    ## Null Handle Type 2 First
-    else if ((isolate(input$Pkmn_Type_1)) %in% (isolate(input$Pkmn_Type_2)) & 
-             ("All" %in% input$Pkmn_Type_1 == FALSE) & (is.null(isolate(input$Pkmn_Type_1)) == FALSE))
+    else if ((isolate(input$Pkmn_Type_1) %in% isolate(input$Pkmn_Type_2)) & 
+             ("All" %in% input$Pkmn_Type_1 == FALSE))
     {pokemon2.1_s <- rbind(pokemon2.1[pokemon2.1$`Type 1` %in% input$Pkmn_Type_1,],
                            pokemon2.1[pokemon2.1$`Type 2` %in% input$Pkmn_Type_2,])}
-    
     else {
       if ((is.null(isolate(input$Pkmn_Type_1)) == TRUE) || ("All" %in% input$Pkmn_Type_1 == TRUE))
       {} 
@@ -394,7 +387,6 @@ pkm_server_adv2 <- function(input,output){
     else {paste(type_dis, collapse=", ")}
   }
 }
-
 
 shinyApp(ui = pkm_ui_adv2, server = pkm_server_adv2)
 ```
