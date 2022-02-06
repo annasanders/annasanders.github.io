@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<link href="/css/pygments.css" rel="stylesheet"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>STAT 2600 Excerpt - Pokémon Analysis | annasanders.github.io</title>
+<meta name="generator" content="Jekyll v4.2.1" />
+<meta property="og:title" content="STAT 2600 Excerpt - Pokémon Analysis" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A place to display my coding projects." />
+<meta property="og:description" content="A place to display my coding projects." />
+<link rel="canonical" href="http://localhost:4000/r/STAT_2600_excerpt" />
+<meta property="og:url" content="http://localhost:4000/r/STAT_2600_excerpt" />
+<meta property="og:site_name" content="annasanders.github.io" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="STAT 2600 Excerpt - Pokémon Analysis" />
+<script type="application/ld+json">
+{"headline":"STAT 2600 Excerpt - Pokémon Analysis","url":"http://localhost:4000/r/STAT_2600_excerpt","@type":"WebPage","description":"A place to display my coding projects.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="annasanders.github.io" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">annasanders.github.io</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/r">🦏 R Projects</a><a class="page-link" href="/python">🐍 Python Projects</a><a class="page-link" href="/other">🦦 Other Projects</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">STAT 2600 Excerpt - Pokémon Analysis</h1>
+  </header>
+
+  <div class="post-content">
+    <p><strong>Note</strong>: This excerpt was taken from my STAT 2600 Final Project, where my group chose a topic and questions and completed exploratory analysis to help answer them. This excerpt includes the introduction section and my analysis section. This analysis was done pre Pokémon Sword and Pokémon Shield.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">tidyverse</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">readxl</span><span class="p">)</span><span class="w">
+
+</span><span class="c1"># The Whole Data</span><span class="w">
+</span><span class="n">pokemon</span><span class="w"> </span><span class="o">&lt;-</span><span class="n">read.csv</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="w"> </span><span class="s2">"pokemon.csv"</span><span class="p">)</span><span class="w">
+
+</span><span class="c1"># Easier to Read Data</span><span class="w">
+</span><span class="n">pokemonlite</span><span class="w"> </span><span class="o">&lt;-</span><span class="n">pokemon</span><span class="o">%&gt;%</span><span class="w"> </span><span class="c1">#an easier way to look at the data</span><span class="w">
+  </span><span class="n">select</span><span class="p">(</span><span class="n">pokedex_number</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">type1</span><span class="p">,</span><span class="w"> </span><span class="n">type2</span><span class="p">,</span><span class="w"> </span><span class="n">generation</span><span class="p">,</span><span class="w"> </span><span class="n">is_legendary</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="main-question-and-why-this-is-important">Main Question and Why this is Important</h2>
+<p>Pokémon is a beloved franchise by many children and adults alike. As the franchise has grown from one video game in 1996, to now a multimedia monolith (including trading cards, movies, and a tv series), fans have been waiting in anticipation for the next game in the series, which was recently announced as Pokémon: Sword and Pokémon: Shield. Using data from the previous games (Red, Blue, Green, Yellow, Gold, Silver, Crystal, Ruby Sapphire, FireRed, LeafGreen, Emerald, Diamond, Pearl, Platinum, HeartGold, SoulSilver, Black, White, Black2, White2, X, Y, Omega Ruby, Alpha Sapphire, Sun, Moon, Ultra Sun, Ultra Moon, Let’s G0 Eevee, Lets Go Pikachu), we wanted to create a list of recommendations to help become the very best (like no one ever was) in Sword and Shield, including which Pokémon to bring with us from the previous generations.</p>
+
+<h2 id="recommendations">Recommendations</h2>
+<p>Based off of our individual findings, we each have come up with four statements regarding various Pokémon stats on how to be the very best (like no one ever was) in the new game.</p>
+
+<ol>
+  <li>
+    <p>From the analysis of the best generation and the best Pokémon based off of their entry in the Pokedex, I would recommend using either Starters, Pseudo-legendaries, or Legendaries from generation 4 (Sinnoh region) on your team to become the very best.</p>
+  </li>
+  <li>
+    <p>Regarding legendary Pokémon to put on your team, it’s best to choose the Pokémon Latias. If Latias isn’t available, it’s advised to choose a Pokémon that is either a dragon or flying type, with great defensive stats.</p>
+  </li>
+  <li>
+    <p>Pokémon types that are more likely to be male have significantly better base totals, meaning that in essence, they are superior to the other Pokémon. Therefore, in order to try to be the best player out there, it is recommended that the player puts an emphasis on catching these Pokémon type.</p>
+  </li>
+  <li>
+    <p>Dragon and Steel Types are by far the most powerful on average and the new calculated epwr(an estimate for a Pokémon’s power based off of the highest attack stat and average Type effectiveness) can help estimate a Pokémon’s overall attack combat effectiveness.</p>
+  </li>
+</ol>
+
+<h2 id="list-of-references">List of References:</h2>
+<p>https://bulbapedia.bulbagarden.net/wiki/Base_stats</p>
+
+<p>https://bulbapedia.bulbagarden.net/wiki/Catch_rate</p>
+
+<p>https://bulbapedia.bulbagarden.net/wiki/Friendship</p>
+
+<p>https://bulbapedia.bulbagarden.net/wiki/Damage</p>
+
+<p>#Pokémon Stats and Typing (Anna’s Section)
+My main question deals with which Pokémon are the strongest in terms of total stats (base_total column) and how to predict if a certain Type (or Types) is likely to have a higher chance of having larger total stats.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pokemonpwr</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">pokemon</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">select</span><span class="p">(</span><span class="n">pokedex_number</span><span class="p">,</span><span class="w"> </span><span class="n">type1</span><span class="p">,</span><span class="w"> </span><span class="n">type2</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">hp</span><span class="p">,</span><span class="w"> </span><span class="n">attack</span><span class="p">,</span><span class="w"> </span><span class="n">defense</span><span class="p">,</span><span class="w"> </span><span class="n">speed</span><span class="p">,</span><span class="w"> </span><span class="n">sp_attack</span><span class="p">,</span><span class="w"> </span><span class="n">sp_defense</span><span class="p">,</span><span class="w"> </span><span class="n">base_total</span><span class="p">,</span><span class="n">is_legendary</span><span class="p">)</span><span class="w">
+
+</span><span class="n">poketype1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">pokemonpwr</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">group_by</span><span class="p">(</span><span class="n">type1</span><span class="p">)</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">summarise</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">base_total</span><span class="p">),</span><span class="w"> </span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">(),</span><span class="w"> </span><span class="n">sum</span><span class="o">=</span><span class="nf">sum</span><span class="p">(</span><span class="n">base_total</span><span class="p">))</span><span class="w">
+
+</span><span class="n">poketype2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">pokemonpwr</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">group_by</span><span class="p">(</span><span class="n">type2</span><span class="p">)</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">summarise</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">base_total</span><span class="p">),</span><span class="w"> </span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">(),</span><span class="w"> </span><span class="n">sum</span><span class="o">=</span><span class="nf">sum</span><span class="p">(</span><span class="n">base_total</span><span class="p">))</span><span class="w">
+
+</span><span class="n">pokeff</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">pokemon</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">select</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">attack</span><span class="p">,</span><span class="w"> </span><span class="n">sp_attack</span><span class="p">,</span><span class="w"> </span><span class="n">against_bug</span><span class="p">,</span><span class="w"> </span><span class="n">against_dark</span><span class="p">,</span><span class="w"> </span><span class="n">against_dragon</span><span class="p">,</span><span class="w"> </span><span class="n">against_electric</span><span class="p">,</span><span class="w"> </span><span class="n">against_fairy</span><span class="p">,</span><span class="w"> </span><span class="n">against_fight</span><span class="p">,</span><span class="w"> </span><span class="n">against_fire</span><span class="p">,</span><span class="w"> </span><span class="n">against_flying</span><span class="p">,</span><span class="w"> </span><span class="n">against_ghost</span><span class="p">,</span><span class="w"> </span><span class="n">against_grass</span><span class="p">,</span><span class="w"> </span><span class="n">against_ground</span><span class="p">,</span><span class="w"> </span><span class="n">against_ice</span><span class="p">,</span><span class="w"> </span><span class="n">against_normal</span><span class="p">,</span><span class="w"> </span><span class="n">against_poison</span><span class="p">,</span><span class="w"> </span><span class="n">against_psychic</span><span class="p">,</span><span class="w"> </span><span class="n">against_rock</span><span class="p">,</span><span class="w"> </span><span class="n">against_steel</span><span class="p">,</span><span class="w"> </span><span class="n">against_water</span><span class="p">)</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">eff</span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">against_bug</span><span class="o">+</span><span class="w"> </span><span class="n">against_dark</span><span class="o">+</span><span class="w"> </span><span class="n">against_dragon</span><span class="o">+</span><span class="w"> </span><span class="n">against_electric</span><span class="o">+</span><span class="w"> </span><span class="n">against_fairy</span><span class="o">+</span><span class="w"> </span><span class="n">against_fight</span><span class="o">+</span><span class="w"> </span><span class="n">against_fire</span><span class="o">+</span><span class="w"> </span><span class="n">against_flying</span><span class="o">+</span><span class="w"> </span><span class="n">against_ghost</span><span class="o">+</span><span class="w"> </span><span class="n">against_grass</span><span class="o">+</span><span class="w"> </span><span class="n">against_ground</span><span class="o">+</span><span class="w"> </span><span class="n">against_ice</span><span class="o">+</span><span class="w"> </span><span class="n">against_normal</span><span class="o">+</span><span class="w"> </span><span class="n">against_poison</span><span class="o">+</span><span class="w"> </span><span class="n">against_psychic</span><span class="o">+</span><span class="w"> </span><span class="n">against_rock</span><span class="o">+</span><span class="w"> </span><span class="n">against_steel</span><span class="o">+</span><span class="w"> </span><span class="n">against_water</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="m">18</span><span class="p">))</span><span class="w">
+
+</span><span class="n">pokeff2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">pokeff</span><span class="o">%&gt;%</span><span class="w">    </span><span class="c1"># I used a recently learned function apply() to pick the highest value in a row</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">attackh</span><span class="o">=</span><span class="w"> </span><span class="n">apply</span><span class="p">(</span><span class="n">pokeff</span><span class="p">[,</span><span class="m">2</span><span class="o">:</span><span class="m">22</span><span class="p">],</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">max</span><span class="p">))</span><span class="w">
+
+</span><span class="n">pokeff3</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">pokeff2</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">epwr</span><span class="o">=</span><span class="w"> </span><span class="n">attackh</span><span class="o">*</span><span class="n">eff</span><span class="p">)</span><span class="w"> </span><span class="c1">#Expected Power (for comparison, not acutall calculation)</span><span class="w">
+
+</span><span class="n">ggplot</span><span class="p">()</span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_point</span><span class="p">(</span><span class="n">poketype1</span><span class="p">,</span><span class="w"> </span><span class="n">mapping</span><span class="o">=</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">type1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">`mean`</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="s2">"Type 1"</span><span class="p">))</span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_point</span><span class="p">(</span><span class="n">poketype2</span><span class="p">,</span><span class="w"> </span><span class="n">mapping</span><span class="o">=</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">type2</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">`mean`</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="s2">"Type 2"</span><span class="p">))</span><span class="o">+</span><span class="w">
+  </span><span class="n">labs</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="w"> </span><span class="s2">"Type"</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="w"> </span><span class="s2">"Mean Base Power"</span><span class="p">,</span><span class="w"> </span><span class="n">title</span><span class="o">=</span><span class="w"> </span><span class="s2">"Mean Base Power and Type (Type 1= Red, Type 2= Blue)"</span><span class="p">)</span><span class="o">+</span><span class="w">
+  </span><span class="n">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="o">=</span><span class="w"> </span><span class="s2">"none"</span><span class="p">)</span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_x_discrete</span><span class="p">(</span><span class="n">labels</span><span class="o">=</span><span class="w"> </span><span class="n">abbreviate</span><span class="p">)</span><span class="w">
+  </span><span class="n">scale_x_discrete</span><span class="p">(</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span><span class="w"> </span><span class="s2">"bug"</span><span class="p">,</span><span class="w"> </span><span class="s2">"dark"</span><span class="p">,</span><span class="w"> </span><span class="s2">"dragon"</span><span class="p">,</span><span class="w"> </span><span class="s2">"electric"</span><span class="p">,</span><span class="w"> </span><span class="s2">"fairy"</span><span class="p">,</span><span class="w"> </span><span class="s2">"fighting"</span><span class="p">,</span><span class="w"> </span><span class="s2">"fire"</span><span class="p">,</span><span class="w"> </span><span class="s2">"flying"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ghost"</span><span class="p">,</span><span class="w"> </span><span class="s2">"grass"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ground"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ice"</span><span class="p">,</span><span class="w"> </span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"poison"</span><span class="p">,</span><span class="w"> </span><span class="s2">"psychic"</span><span class="p">,</span><span class="w"> </span><span class="s2">"rock"</span><span class="p">,</span><span class="w"> </span><span class="s2">"steel"</span><span class="p">,</span><span class="w"> </span><span class="s2">"water"</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+<p><img src="http://localhost:4000/plots/r/Anna's Plot.png" alt="" /></p>
+
+<p>The plot above helps visualize the mean (or average) base power for each type (the names have been shortened). As you can see, the Dragon (drgn) and Steel (stel) Types have the highest mean base power for pokemon with either as their first or second type. We can also see that the worst types on average for base power are Bug (by a large margin) and Poison.</p>
+
+<p><strong>The top four Pokémon with the highest total stats:</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Name</th>
+      <th style="text-align: center">Total Stat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">Mewtwo</td>
+      <td style="text-align: center">780</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Rayquaza</td>
+      <td style="text-align: center">780</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Kyogre</td>
+      <td style="text-align: center">760</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Groudon</td>
+      <td style="text-align: center">760</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Top three non-legendary Pokémon with the highest total stats:</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Name</th>
+      <th style="text-align: center">Total Stat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">Tyranitar</td>
+      <td style="text-align: center">700</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Salamence</td>
+      <td style="text-align: center">700</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Metagross</td>
+      <td style="text-align: center">700</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Top three first-type with the highest average total stats:</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Type</th>
+      <th style="text-align: center">Average Total Stat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">Dragon</td>
+      <td style="text-align: center">522.7778</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Steel</td>
+      <td style="text-align: center">491.5833</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Psychic</td>
+      <td style="text-align: center">461.2642</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Top three second-type with the highest average total stats:</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Type</th>
+      <th style="text-align: center">Average Total Stat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">Fighting</td>
+      <td style="text-align: center">522.7778</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Dragon</td>
+      <td style="text-align: center">497.4706</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Steel</td>
+      <td style="text-align: center">495.9545</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Top Pokémon for epwr:</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Pokémon</th>
+      <th style="text-align: center">Epwr</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">Heracross</td>
+      <td style="text-align: center">220.9722</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Mewtwo</td>
+      <td style="text-align: center">215.5556</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Tyranitar</td>
+      <td style="text-align: center">209.5556</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Kyurem</td>
+      <td style="text-align: center">203.0556</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Rayquaza</td>
+      <td style="text-align: center">202.5000</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>In pokeff3, I created a new column that multiplied the highest attack value (attack or sp_attack) with an average calculation of the attack multiplier for type. This new value epwr only takes into account attack and type multipliers, but it still is a good base measurement of power vs. any Pokémon of any type on average. Higher numbers for this statistic relate to overall attack power as attack is calculated by multiplying both attack/sp_attack (based on what type of move the Pokémon uses) and the type modifier. I thought of multiplying the type effectiveness against by the amount of Pokémon of that type to get a weighted average but decided since we do not yet know the distribution of new Pokémon and their types, it would be better to not (as the ratio might change).</p>
+
+<p>From this data, we can conclude that one should catch any Pokémon that are Dragon and Steel type, regardless if it is the Pokémon’s first or second type. We can also conclude that legendary Pokémon are in fact more powerful than any non-legendary Pokémon. Lastly, the new column can help predict how well an older generation Pokémon will do in battle, but is not an exact estimate due to other factors (e.g. level, defense, move power).</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">annasanders.github.io</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">annasanders.github.io</li><li><a class="u-email" href="mailto:axsanders6@gmail.com">axsanders6@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/annasanders"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">annasanders</span></a></li><li><a href="https://www.linkedin.com/in/anna-sanders-6610aa162"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">anna-sanders-6610aa162</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>A place to display my coding projects.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

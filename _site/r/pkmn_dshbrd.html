@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+<link href="/css/pygments.css" rel="stylesheet"><head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
@@ -15,7 +16,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Pokémon Dashboard" />
 <script type="application/ld+json">
-{"url":"http://localhost:4000/r/pkmn_dshbrd","@type":"WebPage","headline":"Pokémon Dashboard","description":"A place to display my coding projects.","@context":"https://schema.org"}</script>
+{"headline":"Pokémon Dashboard","url":"http://localhost:4000/r/pkmn_dshbrd","@type":"WebPage","description":"A place to display my coding projects.","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="annasanders.github.io" /></head>
 <body><header class="site-header" role="banner">
@@ -30,7 +31,7 @@
           </span>
         </label>
 
-        <div class="trigger"><a class="page-link" href="/r">R Projects</a><a class="page-link" href="/python">Python Projects</a><a class="page-link" href="/other">Other Projects</a></div>
+        <div class="trigger"><a class="page-link" href="/r">🦏 R Projects</a><a class="page-link" href="/python">🐍 Python Projects</a><a class="page-link" href="/other">🦦 Other Projects</a></div>
       </nav></div>
 </header>
 <main class="page-content" aria-label="Content">
@@ -43,6 +44,11 @@
 
   <div class="post-content">
     <h3 id="live-app-here"><a href="https://annasanders.shinyapps.io/Pokemon_dashboard/">Live App Here!</a></h3>
+
+<p>My favorite video game/hobby is Pokémon. Creating a dashboard to search and display all of the available Pokémon 
+was a great way to start learning how to program shiny dashboards in R. I am particularly proud of learning how to 
+create, add and delete lines from, and reference a newly created table with the app itself. The data was taken from 
+<a href="https://www.kaggle.com/mariotormo/complete-pokemon-dataset-updated-090420">Kaggle</a>, and the pictures come from <a href="https://www.serebii.net/index2.shtml">serebii</a>.</p>
 
 <h3 id="shiny-app-code">Shiny App Code</h3>
 
@@ -159,9 +165,11 @@
                                 </span><span class="n">DT</span><span class="o">::</span><span class="n">dataTableOutput</span><span class="p">(</span><span class="s2">"found_pkmn"</span><span class="p">,</span><span class="w"> </span><span class="n">width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"110%"</span><span class="p">),</span><span class="w"> </span><span class="c1">#table width with scrollable table (in datatable options),</span><span class="w">
                                 
                                 </span><span class="n">actionButton</span><span class="p">(</span><span class="s2">"add_pkmn"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Add Pokemon to List"</span><span class="p">,</span><span class="w"> </span><span class="n">class</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"btn-primary"</span><span class="p">,</span><span class="w"> </span><span class="n">width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"50%"</span><span class="p">),</span><span class="w">
+                                </span><span class="n">h6</span><span class="p">(</span><span class="s2">"Open the Second Tab Before Adding Pokemon"</span><span class="p">),</span><span class="w">
                                 
                                 
-                                </span><span class="n">uiOutput</span><span class="p">(</span><span class="s2">"pkmn_img1"</span><span class="p">)</span><span class="w"> 
+                                </span><span class="n">uiOutput</span><span class="p">(</span><span class="s2">"pkmn_img1"</span><span class="p">),</span><span class="w">
+                                </span><span class="n">h6</span><span class="p">(</span><span class="s2">"Images from Serebii.net"</span><span class="p">),</span><span class="w">
                          </span><span class="p">))),</span><span class="w">
               
               </span><span class="n">tabPanel</span><span class="p">(</span><span class="s2">"My Team"</span><span class="p">,</span><span class="w">
@@ -195,6 +203,7 @@
   </span><span class="c1"># output$testing &lt;- renderText({paste(pokemon2.2[(update_pkmn()$`index`[input$found_pkmn_rows_selected]+1),])})</span><span class="w">
   </span><span class="c1">## output$testing &lt;- renderText({paste("All" %in% input$Pkmn_Type_1)})</span><span class="w">
   </span><span class="c1">#output$testing &lt;- renderText(paste(pokemon_list_r$x))</span><span class="w">
+  </span><span class="c1"># output$testing &lt;- renderText(paste(((((input$Pkmn_Type_1)) %in% ((input$Pkmn_Type_2))) == TRUE)))</span><span class="w">
   
   </span><span class="n">output</span><span class="o">$</span><span class="n">found_pkmn</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">DT</span><span class="o">::</span><span class="n">renderDataTable</span><span class="p">(</span><span class="n">DT</span><span class="o">::</span><span class="n">datatable</span><span class="p">(</span><span class="w">
     </span><span class="n">update_pkmn</span><span class="p">(),</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">lengthMenu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">10</span><span class="p">,</span><span class="w"> </span><span class="m">25</span><span class="p">,</span><span class="w"> </span><span class="m">50</span><span class="p">),</span><span class="w"> </span><span class="n">pageLength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span><span class="p">,</span><span class="w"> </span><span class="n">autoWidth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">scrollX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">columnDefs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="nf">list</span><span class="p">(</span><span class="n">visible</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">,</span><span class="w"> </span><span class="n">targets</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="m">1</span><span class="p">)))),</span><span class="w"> </span><span class="n">selection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"single"</span><span class="w">
@@ -207,10 +216,14 @@
     </span><span class="c1"># Main Bar</span><span class="w">
     </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="nf">is.null</span><span class="p">(</span><span class="n">isolate</span><span class="p">(</span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_1</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="nf">is.null</span><span class="p">(</span><span class="n">isolate</span><span class="p">(</span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_2</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">))</span><span class="w">
     </span><span class="p">{}</span><span class="w">
-    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">isolate</span><span class="p">(</span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_1</span><span class="p">)</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">isolate</span><span class="p">(</span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_2</span><span class="p">))</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> 
-             </span><span class="p">(</span><span class="s2">"All"</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">))</span><span class="w">
+    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="nf">is.null</span><span class="p">(</span><span class="n">isolate</span><span class="p">(</span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_1</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">((</span><span class="nf">is.null</span><span class="p">(</span><span class="n">isolate</span><span class="p">(</span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_2</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="s2">"All"</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)))</span><span class="w">
+    </span><span class="p">{</span><span class="n">pokemon2.1_s</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">pokemon2.1_s</span><span class="p">[</span><span class="n">pokemon2.1_s</span><span class="o">$</span><span class="n">`Type 2`</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_2</span><span class="p">,]}</span><span class="w">
+    </span><span class="c1">## Null Handle Type 2 First</span><span class="w">
+    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">isolate</span><span class="p">(</span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_1</span><span class="p">))</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="p">(</span><span class="n">isolate</span><span class="p">(</span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_2</span><span class="p">))</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> 
+             </span><span class="p">(</span><span class="s2">"All"</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="nf">is.null</span><span class="p">(</span><span class="n">isolate</span><span class="p">(</span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_1</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">))</span><span class="w">
     </span><span class="p">{</span><span class="n">pokemon2.1_s</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">rbind</span><span class="p">(</span><span class="n">pokemon2.1</span><span class="p">[</span><span class="n">pokemon2.1</span><span class="o">$</span><span class="n">`Type 1`</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_1</span><span class="p">,],</span><span class="w">
                            </span><span class="n">pokemon2.1</span><span class="p">[</span><span class="n">pokemon2.1</span><span class="o">$</span><span class="n">`Type 2`</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_2</span><span class="p">,])}</span><span class="w">
+    
     </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w">
       </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="nf">is.null</span><span class="p">(</span><span class="n">isolate</span><span class="p">(</span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_1</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="s2">"All"</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">input</span><span class="o">$</span><span class="n">Pkmn_Type_1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">))</span><span class="w">
       </span><span class="p">{}</span><span class="w"> 
@@ -420,6 +433,7 @@
     </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="n">paste</span><span class="p">(</span><span class="n">type_dis</span><span class="p">,</span><span class="w"> </span><span class="n">collapse</span><span class="o">=</span><span class="s2">", "</span><span class="p">)}</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
+
 
 </span><span class="n">shinyApp</span><span class="p">(</span><span class="n">ui</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pkm_ui_adv2</span><span class="p">,</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pkm_server_adv2</span><span class="p">)</span><span class="w">
 </span></code></pre></div></div>

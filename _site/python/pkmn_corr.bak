@@ -1,9 +1,49 @@
----
-layout: page
-title: Pokémon Correlations
-permalink: /python/pkmn_corr
----
-## Purpose
+<!DOCTYPE html>
+<html lang="en">
+<link href="/css/pygments.css" rel="stylesheet"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Pokémon Correlations | annasanders.github.io</title>
+<meta name="generator" content="Jekyll v4.2.1" />
+<meta property="og:title" content="Pokémon Correlations" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A place to display my coding projects." />
+<meta property="og:description" content="A place to display my coding projects." />
+<link rel="canonical" href="http://localhost:4000/python/pkmn_corr" />
+<meta property="og:url" content="http://localhost:4000/python/pkmn_corr" />
+<meta property="og:site_name" content="annasanders.github.io" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Pokémon Correlations" />
+<script type="application/ld+json">
+{"headline":"Pokémon Correlations","url":"http://localhost:4000/python/pkmn_corr","@type":"WebPage","description":"A place to display my coding projects.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="annasanders.github.io" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">annasanders.github.io</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/r">🦏 R Projects</a><a class="page-link" href="/python">🐍 Python Projects</a><a class="page-link" href="/other">🦦 Other Projects</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Pokémon Correlations</h1>
+  </header>
+
+  <div class="post-content">
+    ## Purpose
 
 To explore basic Machine Learning concepts (multiple regression) and python packages with data I already understand. I will specifically use Pokémon stats to explore potential correlations. I also tried to use loops where possible.
 
@@ -124,7 +164,7 @@ plt.show()
 
 
     
-![png]({{ site.url }}/plots/Python/Pokemon_ML/output_16_0.png)
+![png](http://localhost:4000/plots/Python/Pokemon_ML/output_16_0.png)
     
 
 
@@ -162,7 +202,7 @@ plt.show()
 
 
     
-![png]({{ site.url }}/plots/Python/Pokemon_ML/output_17_0.png)
+![png](http://localhost:4000/plots/Python/Pokemon_ML/output_17_0.png)
     
 
 
@@ -200,7 +240,7 @@ plt.show()
 
 
     
-![png]({{ site.url }}/plots/Python/Pokemon_ML/output_18_0.png)
+![png](http://localhost:4000/plots/Python/Pokemon_ML/output_18_0.png)
     
 
 
@@ -230,7 +270,7 @@ plt.show()
 
 
     
-![png]({{ site.url }}/plots/Python/Pokemon_ML/output_20_0.png)
+![png](http://localhost:4000/plots/Python/Pokemon_ML/output_20_0.png)
     
 
 
@@ -256,7 +296,7 @@ pkmn_h1 = sns.heatmap(pokemon_h_corr1, cbar=False, annot=True, center=0, cmap="b
 
 
     
-![png]({{ site.url }}/plots/Python/Pokemon_ML/output_22_0.png)
+![png](http://localhost:4000/plots/Python/Pokemon_ML/output_22_0.png)
     
 
 
@@ -280,7 +320,7 @@ pkmn_h2 = sns.heatmap(pokemon_h_corr2, cbar=False, annot=True, center=0, cmap="b
 
 
     
-![png]({{ site.url }}/plots/Python/Pokemon_ML/output_23_0.png)
+![png](http://localhost:4000/plots/Python/Pokemon_ML/output_23_0.png)
     
 
 
@@ -308,7 +348,7 @@ pkmn_h3 = sns.heatmap(pokemon_h_corr3, cbar=True, annot=True, center=0, cmap="bo
 
 
     
-![png]({{ site.url }}/plots/Python/Pokemon_ML/output_24_0.png)
+![png](http://localhost:4000/plots/Python/Pokemon_ML/output_24_0.png)
     
 
 
@@ -328,7 +368,7 @@ pkmn_h4 = sns.heatmap(pokemon_h_corr4, cbar=False, annot=True, center=0, cmap="b
 
 
     
-![png]({{ site.url }}/plots/Python/Pokemon_ML/output_25_0.png)
+![png](http://localhost:4000/plots/Python/Pokemon_ML/output_25_0.png)
     
 
 
@@ -387,6 +427,11 @@ list(zip(x, pkmn_mlr.coef_))
 ```python
     Intercept:  4143338107306098.5
     Coefficients:
+    
+
+
+
+
     [('Type_1_Bug', -3807471977839108.0),
      ('Type_1_Dark', -3807471977839072.5),
      ('Type_1_Dragon', -3807471977839015.0),
@@ -516,3 +561,36 @@ print('Root Mean Square Error:', rootMeanSqErr)
 ```    
 
 While the multiple regression linear model technically works, the results are unfortunately statistically insignificant, meaning there is either low correlation between variables or the model itself is not the 'best'. This is not surprising though, as Pokémon and their stats are incredibly diverse, so a clear relation between types would make both general and competitive play unbalanced. 
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">annasanders.github.io</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">annasanders.github.io</li><li><a class="u-email" href="mailto:axsanders6@gmail.com">axsanders6@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/annasanders"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">annasanders</span></a></li><li><a href="https://www.linkedin.com/in/anna-sanders-6610aa162"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">anna-sanders-6610aa162</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>A place to display my coding projects.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

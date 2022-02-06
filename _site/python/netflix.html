@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<link href="/css/pygments.css" rel="stylesheet"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Using Python to Analyze Netflix Data | annasanders.github.io</title>
+<meta name="generator" content="Jekyll v4.2.1" />
+<meta property="og:title" content="Using Python to Analyze Netflix Data" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A place to display my coding projects." />
+<meta property="og:description" content="A place to display my coding projects." />
+<link rel="canonical" href="http://localhost:4000/python/netflix" />
+<meta property="og:url" content="http://localhost:4000/python/netflix" />
+<meta property="og:site_name" content="annasanders.github.io" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Using Python to Analyze Netflix Data" />
+<script type="application/ld+json">
+{"headline":"Using Python to Analyze Netflix Data","url":"http://localhost:4000/python/netflix","@type":"WebPage","description":"A place to display my coding projects.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="annasanders.github.io" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">annasanders.github.io</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/r">🦏 R Projects</a><a class="page-link" href="/python">🐍 Python Projects</a><a class="page-link" href="/other">🦦 Other Projects</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Using Python to Analyze Netflix Data</h1>
+  </header>
+
+  <div class="post-content">
+    <h2 id="purpose">Purpose</h2>
+
+<p>This project is to help me learn python syntax and packages and familiarize myself with the ecosystem as a whole. I tried to use various techniques for describing and mutating data, as well as displaying data.</p>
+
+<p>Unfortunately, I could not get my plotly plots to load correctly, so click <a href="http://localhost:4000/files/Python/Netflix_Project/Netflix_Python_Project_Plotly.pdf">here</a> for a PDF of the plotly graphs.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="n">mpl</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">plotly</span> <span class="k">as</span> <span class="n">pl</span>
+<span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="n">px</span>
+<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="n">sp</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">style</span><span class="p">.</span><span class="n">use</span><span class="p">(</span><span class="s">"classic"</span><span class="p">)</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+</code></pre></div></div>
+
+<h2 id="loading-in-data">Loading in Data</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">netflix_raw</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'Netflix Dataset Latest 2021.csv'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="filtering-data-to-relevant-columns">Filtering Data to Relevant Columns</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">netflix_1</span> <span class="o">=</span> <span class="n">netflix_raw</span><span class="p">[[</span><span class="s">'Title'</span><span class="p">,</span>
+ <span class="s">'Genre'</span><span class="p">,</span>
+ <span class="s">'Tags'</span><span class="p">,</span>
+ <span class="s">'Languages'</span><span class="p">,</span>
+ <span class="s">'Series or Movie'</span><span class="p">,</span>
+ <span class="s">'Country Availability'</span><span class="p">,</span>
+ <span class="s">'Runtime'</span><span class="p">,</span>
+ <span class="s">'IMDb Score'</span><span class="p">,</span>
+ <span class="s">'Rotten Tomatoes Score'</span><span class="p">,</span>
+ <span class="s">'Metacritic Score'</span><span class="p">,</span>
+ <span class="s">'Awards Received'</span><span class="p">,</span>
+ <span class="s">'Awards Nominated For'</span><span class="p">,</span>
+ <span class="s">'Boxoffice'</span><span class="p">,</span>
+ <span class="s">'Release Date'</span><span class="p">,</span>
+ <span class="s">'Netflix Release Date'</span><span class="p">]].</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="n">netflix_1</span> <span class="o">=</span> <span class="n">netflix_1</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="s">"int64"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s">"ignore"</span><span class="p">)</span>
+<span class="n">netflix_1</span> <span class="o">=</span> <span class="n">netflix_1</span><span class="p">.</span><span class="n">astype</span><span class="p">({</span><span class="s">"Title"</span><span class="p">:</span> <span class="s">"string"</span><span class="p">,</span>
+ <span class="s">'Genre'</span><span class="p">:</span> <span class="s">"string"</span><span class="p">,</span>
+ <span class="s">'Tags'</span><span class="p">:</span> <span class="s">"string"</span><span class="p">,</span>
+ <span class="s">'Languages'</span><span class="p">:</span> <span class="s">"string"</span><span class="p">,</span>
+ <span class="s">'Series or Movie'</span><span class="p">:</span> <span class="s">"string"</span><span class="p">,</span>
+ <span class="s">'Country Availability'</span><span class="p">:</span> <span class="s">"string"</span><span class="p">,</span>
+ <span class="s">'Boxoffice'</span><span class="p">:</span> <span class="s">"float"</span><span class="p">},</span> <span class="n">errors</span><span class="o">=</span><span class="s">'ignore'</span><span class="p">)</span>
+<span class="n">netflix_1</span><span class="p">[</span><span class="s">"Release Date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">netflix_1</span><span class="p">[</span><span class="s">"Release Date"</span><span class="p">])</span>
+<span class="n">netflix_1</span><span class="p">[</span><span class="s">"Netflix Release Date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">netflix_1</span><span class="p">[</span><span class="s">"Netflix Release Date"</span><span class="p">])</span>
+<span class="n">netflix_1</span><span class="p">[</span><span class="s">"Same Day Rel"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">netflix_1</span><span class="p">[</span><span class="s">"Release Date"</span><span class="p">]</span> <span class="o">==</span> <span class="n">netflix_1</span><span class="p">[</span><span class="s">"Netflix Release Date"</span><span class="p">])</span>
+<span class="n">netflix_1</span><span class="p">[</span><span class="s">"USA Availability"</span><span class="p">]</span> <span class="o">=</span> <span class="n">netflix_1</span><span class="p">[</span><span class="s">"Country Availability"</span><span class="p">].</span><span class="nb">str</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">pat</span> <span class="o">=</span> <span class="s">"United States"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="creating-new-datatables-for-analysis">Creating New DataTables for analysis</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">netflix_rel</span> <span class="o">=</span> <span class="n">netflix_1</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">netflix_1</span><span class="p">[</span><span class="s">"Same Day Rel"</span><span class="p">]</span> <span class="o">==</span> <span class="bp">True</span><span class="p">]</span>
+<span class="n">netflix_nonrel</span> <span class="o">=</span> <span class="n">netflix_1</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">netflix_1</span><span class="p">[</span><span class="s">"Same Day Rel"</span><span class="p">]</span> <span class="o">==</span> <span class="bp">False</span><span class="p">]</span>
+
+<span class="n">netflix_series</span> <span class="o">=</span> <span class="n">netflix_1</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">netflix_1</span><span class="p">[</span><span class="s">"Series or Movie"</span><span class="p">]</span> <span class="o">==</span> <span class="s">"Series"</span><span class="p">]</span>
+<span class="n">netflix_movie</span> <span class="o">=</span> <span class="n">netflix_1</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">netflix_1</span><span class="p">[</span><span class="s">"Series or Movie"</span><span class="p">]</span> <span class="o">==</span> <span class="s">"Movie"</span><span class="p">]</span>
+
+<span class="n">netflix_usa</span> <span class="o">=</span> <span class="n">netflix_1</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">netflix_1</span><span class="p">[</span><span class="s">"USA Availability"</span><span class="p">]</span> <span class="o">==</span> <span class="bp">True</span><span class="p">]</span>
+<span class="n">netflix_int</span> <span class="o">=</span> <span class="n">netflix_1</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">netflix_1</span><span class="p">[</span><span class="s">"USA Availability"</span><span class="p">]</span> <span class="o">==</span> <span class="bp">False</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>We will be trying to research the following questions:</p>
+<ol>
+  <li>Are same day Netflix releases better or worse than non-same day release titles?</li>
+  <li>Are Netflix Movies or Series better?</li>
+  <li>Are Netflix offerings in the US better than international offerings?</li>
+</ol>
+
+<h1 id="are-same-day-netflix-releases-better-or-worse-than-non-same-day-release-titles">Are same day Netflix releases better or worse than non-same day release titles?</h1>
+
+<p>Using the netflix_rel and netflix_nonrel tables, we will try to answer if there is any difference on the quality of same day releases vs. non-same day releases. We can assume same day release title are Netflix exclusives or titles that worked closely with Netflix to produce, as Netflix has not historically partnered with studios to release new titles the same day as theaters.</p>
+
+<p>I will use numpy functionality to find values and matplotlib to plot histograms.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">rel_imdb</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">netflix_rel</span><span class="p">[</span><span class="s">"IMDb Score"</span><span class="p">])</span>
+<span class="n">rel_rt</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">netflix_rel</span><span class="p">[</span><span class="s">"Rotten Tomatoes Score"</span><span class="p">])</span>
+<span class="n">rel_mc</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">netflix_rel</span><span class="p">[</span><span class="s">"Metacritic Score"</span><span class="p">])</span>
+<span class="n">rel_awards_n</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">netflix_rel</span><span class="p">[</span><span class="s">"Awards Nominated For"</span><span class="p">])</span>
+<span class="n">rel_awards_r</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">netflix_rel</span><span class="p">[</span><span class="s">"Awards Received"</span><span class="p">])</span>
+
+<span class="n">nonrel_imdb</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">netflix_nonrel</span><span class="p">[</span><span class="s">"IMDb Score"</span><span class="p">])</span>
+<span class="n">nonrel_rt</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">netflix_nonrel</span><span class="p">[</span><span class="s">"Rotten Tomatoes Score"</span><span class="p">])</span>
+<span class="n">nonrel_mc</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">netflix_nonrel</span><span class="p">[</span><span class="s">"Metacritic Score"</span><span class="p">])</span>
+<span class="n">nonrel_awards_n</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">netflix_nonrel</span><span class="p">[</span><span class="s">"Awards Nominated For"</span><span class="p">])</span>
+<span class="n">nonrel_awards_r</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">netflix_nonrel</span><span class="p">[</span><span class="s">"Awards Received"</span><span class="p">])</span>
+
+<span class="n">v_rel_imdb</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">rel_imdb</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">rel_imdb</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">rel_imdb</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">rel_imdb</span><span class="p">)])</span>
+<span class="n">v_rel_rt</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">rel_rt</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">rel_rt</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">rel_rt</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">rel_rt</span><span class="p">)])</span>
+<span class="n">v_rel_mc</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">rel_mc</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">rel_mc</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">rel_mc</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">rel_mc</span><span class="p">)])</span>
+<span class="n">v_rel_awards_n</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">rel_awards_n</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">rel_awards_n</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">rel_awards_n</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">rel_awards_n</span><span class="p">)])</span>
+<span class="n">v_rel_awards_r</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">rel_awards_r</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">rel_awards_r</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">rel_awards_r</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">rel_awards_r</span><span class="p">)])</span>
+
+<span class="n">v_nonrel_imdb</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">nonrel_imdb</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">nonrel_imdb</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">nonrel_imdb</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">nonrel_imdb</span><span class="p">)])</span>
+<span class="n">v_nonrel_rt</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">nonrel_rt</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">nonrel_rt</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">nonrel_rt</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">nonrel_rt</span><span class="p">)])</span>
+<span class="n">v_nonrel_mc</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">nonrel_mc</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">nonrel_mc</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">nonrel_mc</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">nonrel_mc</span><span class="p">)])</span>
+<span class="n">v_nonrel_awards_n</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">nonrel_awards_n</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">nonrel_awards_n</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">nonrel_awards_n</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">nonrel_awards_n</span><span class="p">)])</span>
+<span class="n">v_nonrel_awards_r</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">nonrel_awards_r</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">nonrel_awards_r</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">nonrel_awards_r</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">nonrel_awards_r</span><span class="p">)])</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">v_rel_imdb</span><span class="p">,</span><span class="n">v_nonrel_imdb</span><span class="p">,(</span><span class="n">v_rel_imdb</span> <span class="o">-</span> <span class="n">v_nonrel_imdb</span><span class="p">)]))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">v_rel_rt</span><span class="p">,</span><span class="n">v_nonrel_rt</span><span class="p">,(</span><span class="n">v_rel_rt</span> <span class="o">-</span> <span class="n">v_nonrel_rt</span><span class="p">)]))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">v_rel_mc</span><span class="p">,</span><span class="n">v_nonrel_mc</span><span class="p">,(</span><span class="n">v_rel_mc</span> <span class="o">-</span> <span class="n">v_nonrel_mc</span><span class="p">)]))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">v_rel_awards_n</span><span class="p">,</span><span class="n">v_nonrel_awards_n</span><span class="p">,(</span><span class="n">v_rel_awards_n</span> <span class="o">-</span> <span class="n">v_nonrel_awards_n</span><span class="p">)]))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">v_rel_awards_r</span><span class="p">,</span><span class="n">v_nonrel_awards_r</span><span class="p">,(</span><span class="n">v_rel_awards_r</span> <span class="o">-</span> <span class="n">v_nonrel_awards_r</span><span class="p">)]))</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="p">[[</span> <span class="mf">7.08104313</span>  <span class="mf">7.1</span>         <span class="mf">3.1</span>         <span class="mf">9.3</span>       <span class="p">]</span>
+     <span class="p">[</span> <span class="mf">6.94065321</span>  <span class="mf">7.</span>          <span class="mf">1.6</span>         <span class="mf">9.7</span>       <span class="p">]</span>
+     <span class="p">[</span> <span class="mf">0.14038992</span>  <span class="mf">0.1</span>         <span class="mf">1.5</span>        <span class="o">-</span><span class="mf">0.4</span>       <span class="p">]]</span>
+    <span class="p">[[</span> <span class="mf">74.69407895</span>  <span class="mf">81.</span>           <span class="mf">0.</span>         <span class="mf">100.</span>        <span class="p">]</span>
+     <span class="p">[</span> <span class="mf">64.09978603</span>  <span class="mf">69.</span>           <span class="mf">0.</span>         <span class="mf">100.</span>        <span class="p">]</span>
+     <span class="p">[</span> <span class="mf">10.59429291</span>  <span class="mf">12.</span>           <span class="mf">0.</span>           <span class="mf">0.</span>        <span class="p">]]</span>
+    <span class="p">[[</span> <span class="mf">62.64609053</span>  <span class="mf">65.</span>          <span class="mf">18.</span>          <span class="mf">94.</span>        <span class="p">]</span>
+     <span class="p">[</span> <span class="mf">57.82651732</span>  <span class="mf">58.</span>           <span class="mf">6.</span>         <span class="mf">100.</span>        <span class="p">]</span>
+     <span class="p">[</span>  <span class="mf">4.81957321</span>   <span class="mf">7.</span>          <span class="mf">12.</span>          <span class="o">-</span><span class="mf">6.</span>        <span class="p">]]</span>
+    <span class="p">[[</span> <span class="mf">10.58964143</span>   <span class="mf">4.</span>           <span class="mf">1.</span>         <span class="mf">334.</span>        <span class="p">]</span>
+     <span class="p">[</span> <span class="mf">16.50102145</span>   <span class="mf">6.</span>           <span class="mf">1.</span>         <span class="mf">386.</span>        <span class="p">]</span>
+     <span class="p">[</span> <span class="o">-</span><span class="mf">5.91138002</span>  <span class="o">-</span><span class="mf">2.</span>           <span class="mf">0.</span>         <span class="o">-</span><span class="mf">52.</span>        <span class="p">]]</span>
+    <span class="p">[[</span>   <span class="mf">5.95166163</span>    <span class="mf">3.</span>            <span class="mf">1.</span>          <span class="mf">127.</span>        <span class="p">]</span>
+     <span class="p">[</span>   <span class="mf">9.9918284</span>     <span class="mf">4.</span>            <span class="mf">1.</span>          <span class="mf">300.</span>        <span class="p">]</span>
+     <span class="p">[</span>  <span class="o">-</span><span class="mf">4.04016676</span>   <span class="o">-</span><span class="mf">1.</span>            <span class="mf">0.</span>         <span class="o">-</span><span class="mf">173.</span>        <span class="p">]]</span>
+</code></pre></div></div>
+
+<h2 id="matplotlib-histogram-plots">Matplotlib Histogram Plots</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">hist</span><span class="p">(</span><span class="n">netflix_rel</span><span class="p">[</span><span class="s">"IMDb Score"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s">"stepfilled"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"steelblue"</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">"steelblue"</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"Released Same Day"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">hist</span><span class="p">(</span><span class="n">netflix_nonrel</span><span class="p">[</span><span class="s">"IMDb Score"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s">"stepfilled"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"limegreen"</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">"limegreen"</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span>  <span class="n">label</span><span class="o">=</span><span class="s">"Released Later"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"IMDB Score"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">Text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s">'IMDB Score'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/plots/Python/Netflix_Project/output_14_1.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">hist</span><span class="p">(</span><span class="n">netflix_rel</span><span class="p">[</span><span class="s">"Rotten Tomatoes Score"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s">"stepfilled"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"steelblue"</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">"steelblue"</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"Released Same Day"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">hist</span><span class="p">(</span><span class="n">netflix_nonrel</span><span class="p">[</span><span class="s">"Rotten Tomatoes Score"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s">"stepfilled"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"limegreen"</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">"limegreen"</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span>  <span class="n">label</span><span class="o">=</span><span class="s">"Released Later"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Rotten Tomatoes Score"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">Text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s">'Rotten Tomatoes Score'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/plots/Python/Netflix_Project/output_15_1.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">hist</span><span class="p">(</span><span class="n">netflix_rel</span><span class="p">[</span><span class="s">"Metacritic Score"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s">"stepfilled"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"steelblue"</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">"steelblue"</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"Released Same Day"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">hist</span><span class="p">(</span><span class="n">netflix_nonrel</span><span class="p">[</span><span class="s">"Metacritic Score"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s">"stepfilled"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"limegreen"</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">"limegreen"</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span>  <span class="n">label</span><span class="o">=</span><span class="s">"Released Later"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Metacritic Score"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">Text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s">'Metacritic Score'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><a href="http://localhost:4000/plots/Python/Netflix_Project/output_16_1.png">png</a></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">hist</span><span class="p">(</span><span class="n">netflix_rel</span><span class="p">[</span><span class="s">"Awards Nominated For"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s">"stepfilled"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"steelblue"</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">"steelblue"</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"Released Same Day"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">hist</span><span class="p">(</span><span class="n">netflix_nonrel</span><span class="p">[</span><span class="s">"Awards Nominated For"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s">"stepfilled"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"limegreen"</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">"limegreen"</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span>  <span class="n">label</span><span class="o">=</span><span class="s">"Released Later"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Awards Nominated For"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">Text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s">'Awards Nominated For'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/plots/Python/Netflix_Project/output_17_1.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">hist</span><span class="p">(</span><span class="n">netflix_rel</span><span class="p">[</span><span class="s">"Awards Received"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s">"stepfilled"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"steelblue"</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">"steelblue"</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"Released Same Day"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">hist</span><span class="p">(</span><span class="n">netflix_nonrel</span><span class="p">[</span><span class="s">"Awards Received"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s">"stepfilled"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"limegreen"</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">"limegreen"</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span>  <span class="n">label</span><span class="o">=</span><span class="s">"Released Later"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Awards Received"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">Text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s">'Awards Received'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/plots/Python/Netflix_Project/output_18_1.png" alt="png" /></p>
+
+<h2 id="findings">Findings</h2>
+
+<p>From the above analysis and graphs, same day releases tend to do slightly better in ratings metrics (IMDb, Roten Tomatoes, and Metacritic), but worse for awards. The overall distribution, however, looks similar for all metrics. Netflix clearly has more content that was released later than content that was released same day.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">netflix_rel</span><span class="p">[</span><span class="s">"Awards Received"</span><span class="p">],</span> <span class="n">netflix_nonrel</span><span class="p">[</span><span class="s">"Awards Received"</span><span class="p">],</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s">"omit"</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">netflix_rel</span><span class="p">[</span><span class="s">"Metacritic Score"</span><span class="p">],</span> <span class="n">netflix_nonrel</span><span class="p">[</span><span class="s">"Metacritic Score"</span><span class="p">],</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s">"omit"</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">netflix_rel</span><span class="p">[</span><span class="s">"IMDb Score"</span><span class="p">],</span> <span class="n">netflix_nonrel</span><span class="p">[</span><span class="s">"IMDb Score"</span><span class="p">],</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s">"omit"</span><span class="p">))</span>
+
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Ttest_indResult(statistic=-3.6479126235294426, pvalue=0.00026695722943390597)
+Ttest_indResult(statistic=4.25895186332051, pvalue=2.100142994661915e-05)
+Ttest_indResult(statistic=4.664152901062096, pvalue=3.1415989320023794e-06)
+</code></pre></div></div>
+
+<h1 id="are-netflix-movies-or-series-better">Are Netflix Movies or Series better?</h1>
+
+<p>Using the netflix_1, netflix_series, and netflix_movie tables, we will try to answer if movies or series are better on Netflix.</p>
+
+<p>I will use pandas functionality to find values in this case.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ms_imdb</span> <span class="o">=</span> <span class="n">netflix_1</span><span class="p">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">"Series or Movie"</span><span class="p">).</span><span class="n">agg</span><span class="p">({</span><span class="s">"IMDb Score"</span><span class="p">:</span> <span class="p">[</span><span class="s">"mean"</span><span class="p">,</span> <span class="s">"median"</span><span class="p">,</span> <span class="s">"min"</span><span class="p">,</span> <span class="s">"max"</span><span class="p">]})</span> 
+<span class="n">ms_rt</span> <span class="o">=</span> <span class="n">netflix_1</span><span class="p">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">"Series or Movie"</span><span class="p">).</span><span class="n">agg</span><span class="p">({</span><span class="s">"Rotten Tomatoes Score"</span><span class="p">:</span>  <span class="p">[</span><span class="s">"mean"</span><span class="p">,</span> <span class="s">"median"</span><span class="p">,</span> <span class="s">"min"</span><span class="p">,</span> <span class="s">"max"</span><span class="p">]})</span>  
+<span class="n">ms_mc</span> <span class="o">=</span> <span class="n">netflix_1</span><span class="p">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">"Series or Movie"</span><span class="p">).</span><span class="n">agg</span><span class="p">({</span><span class="s">"Metacritic Score"</span><span class="p">:</span>  <span class="p">[</span><span class="s">"mean"</span><span class="p">,</span> <span class="s">"median"</span><span class="p">,</span> <span class="s">"min"</span><span class="p">,</span> <span class="s">"max"</span><span class="p">]})</span>  
+<span class="n">ms_awards_n</span> <span class="o">=</span> <span class="n">netflix_1</span><span class="p">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">"Series or Movie"</span><span class="p">).</span><span class="n">agg</span><span class="p">({</span><span class="s">"Awards Nominated For"</span><span class="p">:</span>  <span class="p">[</span><span class="s">"mean"</span><span class="p">,</span> <span class="s">"median"</span><span class="p">,</span> <span class="s">"min"</span><span class="p">,</span> <span class="s">"max"</span><span class="p">]})</span> 
+<span class="n">ms_awards_r</span> <span class="o">=</span> <span class="n">netflix_1</span><span class="p">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">"Series or Movie"</span><span class="p">).</span><span class="n">agg</span><span class="p">({</span><span class="s">"Awards Received"</span><span class="p">:</span>  <span class="p">[</span><span class="s">"mean"</span><span class="p">,</span> <span class="s">"median"</span><span class="p">,</span> <span class="s">"min"</span><span class="p">,</span> <span class="s">"max"</span><span class="p">]})</span>
+
+<span class="n">ms_imdb</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="s">"Dif"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ms_imdb</span><span class="p">.</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="s">"Movie"</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="s">"Series"</span><span class="p">])</span>
+<span class="n">ms_rt</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="s">"Dif"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ms_rt</span><span class="p">.</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="s">"Movie"</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="s">"Series"</span><span class="p">])</span>
+<span class="n">ms_mc</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="s">"Dif"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ms_mc</span><span class="p">.</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="s">"Movie"</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="s">"Series"</span><span class="p">])</span>
+<span class="n">ms_awards_n</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="s">"Dif"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ms_awards_n</span><span class="p">.</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="s">"Movie"</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="s">"Series"</span><span class="p">])</span>
+<span class="n">ms_awards_r</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="s">"Dif"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ms_awards_r</span><span class="p">.</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="s">"Movie"</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="s">"Series"</span><span class="p">])</span>
+
+
+<span class="k">print</span><span class="p">(</span><span class="n">ms_imdb</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">ms_rt</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">ms_mc</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">ms_awards_n</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">ms_awards_r</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                    <span class="n">IMDb</span> <span class="n">Score</span>                 
+                          <span class="n">mean</span> <span class="n">median</span>  <span class="nb">min</span>  <span class="nb">max</span>
+    <span class="n">Series</span> <span class="ow">or</span> <span class="n">Movie</span>                            
+    <span class="n">Movie</span>             <span class="mf">6.752828</span>    <span class="mf">6.8</span>  <span class="mf">1.6</span>  <span class="mf">9.7</span>
+    <span class="n">Series</span>            <span class="mf">7.543188</span>    <span class="mf">7.5</span>  <span class="mf">2.7</span>  <span class="mf">9.5</span>
+    <span class="n">Dif</span>              <span class="o">-</span><span class="mf">0.790361</span>   <span class="o">-</span><span class="mf">0.7</span> <span class="o">-</span><span class="mf">1.1</span>  <span class="mf">0.2</span>
+                    <span class="n">Rotten</span> <span class="n">Tomatoes</span> <span class="n">Score</span>                   
+                                     <span class="n">mean</span> <span class="n">median</span>  <span class="nb">min</span>    <span class="nb">max</span>
+    <span class="n">Series</span> <span class="ow">or</span> <span class="n">Movie</span>                                         
+    <span class="n">Movie</span>                       <span class="mf">64.608014</span>   <span class="mf">70.0</span>  <span class="mf">0.0</span>  <span class="mf">100.0</span>
+    <span class="n">Series</span>                      <span class="mf">67.551948</span>   <span class="mf">69.0</span>  <span class="mf">8.0</span>  <span class="mf">100.0</span>
+    <span class="n">Dif</span>                         <span class="o">-</span><span class="mf">2.943934</span>    <span class="mf">1.0</span> <span class="o">-</span><span class="mf">8.0</span>    <span class="mf">0.0</span>
+                    <span class="n">Metacritic</span> <span class="n">Score</span>                    
+                                <span class="n">mean</span> <span class="n">median</span>   <span class="nb">min</span>    <span class="nb">max</span>
+    <span class="n">Series</span> <span class="ow">or</span> <span class="n">Movie</span>                                     
+    <span class="n">Movie</span>                  <span class="mf">58.064766</span>   <span class="mf">59.0</span>   <span class="mf">6.0</span>  <span class="mf">100.0</span>
+    <span class="n">Series</span>                 <span class="mf">60.457831</span>   <span class="mf">61.0</span>  <span class="mf">24.0</span>   <span class="mf">93.0</span>
+    <span class="n">Dif</span>                    <span class="o">-</span><span class="mf">2.393065</span>   <span class="o">-</span><span class="mf">2.0</span> <span class="o">-</span><span class="mf">18.0</span>    <span class="mf">7.0</span>
+                    <span class="n">Awards</span> <span class="n">Nominated</span> <span class="n">For</span>                   
+                                    <span class="n">mean</span> <span class="n">median</span>  <span class="nb">min</span>    <span class="nb">max</span>
+    <span class="n">Series</span> <span class="ow">or</span> <span class="n">Movie</span>                                        
+    <span class="n">Movie</span>                      <span class="mf">16.031134</span>    <span class="mf">6.0</span>  <span class="mf">1.0</span>  <span class="mf">355.0</span>
+    <span class="n">Series</span>                     <span class="mf">16.053586</span>    <span class="mf">5.0</span>  <span class="mf">1.0</span>  <span class="mf">386.0</span>
+    <span class="n">Dif</span>                        <span class="o">-</span><span class="mf">0.022452</span>    <span class="mf">1.0</span>  <span class="mf">0.0</span>  <span class="o">-</span><span class="mf">31.0</span>
+                    <span class="n">Awards</span> <span class="n">Received</span>                   
+                               <span class="n">mean</span> <span class="n">median</span>  <span class="nb">min</span>    <span class="nb">max</span>
+    <span class="n">Series</span> <span class="ow">or</span> <span class="n">Movie</span>                                   
+    <span class="n">Movie</span>                 <span class="mf">10.060777</span>    <span class="mf">4.0</span>  <span class="mf">1.0</span>  <span class="mf">300.0</span>
+    <span class="n">Series</span>                 <span class="mf">8.330275</span>    <span class="mf">3.0</span>  <span class="mf">1.0</span>  <span class="mf">232.0</span>
+    <span class="n">Dif</span>                    <span class="mf">1.730502</span>    <span class="mf">1.0</span>  <span class="mf">0.0</span>   <span class="mf">68.0</span>
+</code></pre></div></div>
+
+<h2 id="plotly-box-plots-see-pdf-link">Plotly Box Plots (see pdf link)</h2>
+<p>px.box(netflix_1, y=”IMDb Score”, color=”Series or Movie”)fig = px.box(netflix_1, y=[“Rotten Tomatoes Score”,”Metacritic Score”], color=”Series or Movie”)
+fig.update_layout(xaxis_title=”“)fig = px.box(netflix_1, y=[“Awards Nominated For”,”Awards Received”] , color=”Series or Movie”)
+fig.update_layout(yaxis=dict(range=[0,50]), xaxis_title=””)</p>
+
+<h2 id="dash-interactive-plot-work-in-progress">Dash Interactive Plot (work in progress)</h2>
+<p>import dash
+import dash_core_components as dcc
+import dash_html_components as html
+from dash.dependencies import Input, Output</p>
+
+<p>app = dash.Dash(<strong>name</strong>)</p>
+
+<p>app.layout = html.Div([
+    html.P(“y-axis:”),
+    dcc.RadioItems(
+        id=”y-axis”,
+        options=[{“value”:x, “label”:x}
+                for x in [“IMDb Score”, “Rotten Tomatoes Score”, “Metacritic Score”, “Awards Nominated For”, “Awards Received”]],
+        value=”IMDb Score”,
+        labelStyle={“display”:”inline-block”}
+    ),
+    dcc.Graph(id=”box-plot”),
+])</p>
+
+<p>@app.callback(
+    Output(“box-plot”, “figure”),
+    [Input(“y-axis”, “value”)]
+)</p>
+
+<p>def generate_chart(y):
+    fig = px.box(netflix_1, x=”Series or Movie”, y=y)
+    return fig</p>
+
+<p>app.run_server(debug=True)</p>
+<h2 id="findings-1">Findings</h2>
+
+<p>From the above analysis and graphs, Series tend to do better than Movies except in awards recieved.</p>
+
+<h1 id="have-netflix-offerings-in-the-us-gotten-better-over-time">Have Netflix offerings in the US gotten better over time?</h1>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">describe</span><span class="p">(</span><span class="n">netflix_usa</span><span class="p">[</span><span class="s">"IMDb Score"</span><span class="p">],</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s">"omit"</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">describe</span><span class="p">(</span><span class="n">netflix_usa</span><span class="p">[</span><span class="s">"Rotten Tomatoes Score"</span><span class="p">],</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s">"omit"</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">describe</span><span class="p">(</span><span class="n">netflix_usa</span><span class="p">[</span><span class="s">"Metacritic Score"</span><span class="p">],</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s">"omit"</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">describe</span><span class="p">(</span><span class="n">netflix_usa</span><span class="p">[</span><span class="s">"Awards Nominated For"</span><span class="p">],</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s">"omit"</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">describe</span><span class="p">(</span><span class="n">netflix_usa</span><span class="p">[</span><span class="s">"Awards Received"</span><span class="p">],</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s">"omit"</span><span class="p">))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">describe</span><span class="p">(</span><span class="n">netflix_int</span><span class="p">[</span><span class="s">"IMDb Score"</span><span class="p">],</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s">"omit"</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">describe</span><span class="p">(</span><span class="n">netflix_int</span><span class="p">[</span><span class="s">"Rotten Tomatoes Score"</span><span class="p">],</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s">"omit"</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">describe</span><span class="p">(</span><span class="n">netflix_int</span><span class="p">[</span><span class="s">"Metacritic Score"</span><span class="p">],</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s">"omit"</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">describe</span><span class="p">(</span><span class="n">netflix_int</span><span class="p">[</span><span class="s">"Awards Nominated For"</span><span class="p">],</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s">"omit"</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sp</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">describe</span><span class="p">(</span><span class="n">netflix_int</span><span class="p">[</span><span class="s">"Awards Received"</span><span class="p">],</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s">"omit"</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">DescribeResult</span><span class="p">(</span><span class="n">nobs</span><span class="o">=</span><span class="mi">3427</span><span class="p">,</span> <span class="n">minmax</span><span class="o">=</span><span class="p">(</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">3.1</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">9.5</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">)),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">7.108987452582434</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="mf">0.7507656703036957</span><span class="p">,</span> <span class="n">skewness</span><span class="o">=</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=-</span><span class="mf">0.58494017</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">kurtosis</span><span class="o">=</span><span class="mf">0.97092352948447</span><span class="p">)</span>
+    <span class="n">DescribeResult</span><span class="p">(</span><span class="n">nobs</span><span class="o">=</span><span class="mi">1398</span><span class="p">,</span> <span class="n">minmax</span><span class="o">=</span><span class="p">(</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">100.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">)),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">70.29828326180258</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="mf">556.8193384966559</span><span class="p">,</span> <span class="n">skewness</span><span class="o">=</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=-</span><span class="mf">0.95555808</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">kurtosis</span><span class="o">=</span><span class="mf">0.28785962243728</span><span class="p">)</span>
+    <span class="n">DescribeResult</span><span class="p">(</span><span class="n">nobs</span><span class="o">=</span><span class="mi">889</span><span class="p">,</span> <span class="n">minmax</span><span class="o">=</span><span class="p">(</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">11.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">99.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">)),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">61.008998875140605</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="mf">263.16883784797176</span><span class="p">,</span> <span class="n">skewness</span><span class="o">=</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=-</span><span class="mf">0.34313274</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">kurtosis</span><span class="o">=-</span><span class="mf">0.24167529977164692</span><span class="p">)</span>
+    <span class="n">DescribeResult</span><span class="p">(</span><span class="n">nobs</span><span class="o">=</span><span class="mi">1998</span><span class="p">,</span> <span class="n">minmax</span><span class="o">=</span><span class="p">(</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">386.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">)),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">14.783783783783784</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="mf">1012.4720053052552</span><span class="p">,</span> <span class="n">skewness</span><span class="o">=</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">5.06791624</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">kurtosis</span><span class="o">=</span><span class="mf">33.043619260042334</span><span class="p">)</span>
+    <span class="n">DescribeResult</span><span class="p">(</span><span class="n">nobs</span><span class="o">=</span><span class="mi">1560</span><span class="p">,</span> <span class="n">minmax</span><span class="o">=</span><span class="p">(</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">251.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">)),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">8.888461538461538</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="mf">338.11840430256086</span><span class="p">,</span> <span class="n">skewness</span><span class="o">=</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">6.20063926</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">kurtosis</span><span class="o">=</span><span class="mf">53.107288568802055</span><span class="p">)</span>
+    <span class="n">DescribeResult</span><span class="p">(</span><span class="n">nobs</span><span class="o">=</span><span class="mi">5979</span><span class="p">,</span> <span class="n">minmax</span><span class="o">=</span><span class="p">(</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">9.7</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">)),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">6.867620003345041</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="mf">0.8224475129888926</span><span class="p">,</span> <span class="n">skewness</span><span class="o">=</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=-</span><span class="mf">0.67596619</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">kurtosis</span><span class="o">=</span><span class="mf">1.4157715600612804</span><span class="p">)</span>
+    <span class="n">DescribeResult</span><span class="p">(</span><span class="n">nobs</span><span class="o">=</span><span class="mi">4040</span><span class="p">,</span> <span class="n">minmax</span><span class="o">=</span><span class="p">(</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">100.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">)),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">62.74480198019802</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="mf">652.1841769847942</span><span class="p">,</span> <span class="n">skewness</span><span class="o">=</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=-</span><span class="mf">0.55751596</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">kurtosis</span><span class="o">=-</span><span class="mf">0.6884438498993233</span><span class="p">)</span>
+    <span class="n">DescribeResult</span><span class="p">(</span><span class="n">nobs</span><span class="o">=</span><span class="mi">3187</span><span class="p">,</span> <span class="n">minmax</span><span class="o">=</span><span class="p">(</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">6.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">100.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">)),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">57.294006903043616</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="mf">299.3984668963742</span><span class="p">,</span> <span class="n">skewness</span><span class="o">=</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=-</span><span class="mf">0.1170702</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">kurtosis</span><span class="o">=-</span><span class="mf">0.49802215814851447</span><span class="p">)</span>
+    <span class="n">DescribeResult</span><span class="p">(</span><span class="n">nobs</span><span class="o">=</span><span class="mi">4371</span><span class="p">,</span> <span class="n">minmax</span><span class="o">=</span><span class="p">(</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">383.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">)),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">16.600320292839168</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="mf">1048.573171522103</span><span class="p">,</span> <span class="n">skewness</span><span class="o">=</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">4.90868371</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">kurtosis</span><span class="o">=</span><span class="mf">31.481340395802768</span><span class="p">)</span>
+    <span class="n">DescribeResult</span><span class="p">(</span><span class="n">nobs</span><span class="o">=</span><span class="mi">3659</span><span class="p">,</span> <span class="n">minmax</span><span class="o">=</span><span class="p">(</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">300.</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">)),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">10.075157146761411</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="mf">396.3828135004485</span><span class="p">,</span> <span class="n">skewness</span><span class="o">=</span><span class="n">masked_array</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="mf">5.83951315</span><span class="p">,</span>
+                 <span class="n">mask</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">fill_value</span><span class="o">=</span><span class="mf">1e+20</span><span class="p">),</span> <span class="n">kurtosis</span><span class="o">=</span><span class="mf">50.26291545901329</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="creating-time-series">Creating Time Series</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">netflix_usa_t</span> <span class="o">=</span> <span class="n">netflix_usa</span><span class="p">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pd</span><span class="p">.</span><span class="n">Grouper</span><span class="p">(</span><span class="n">key</span> <span class="o">=</span><span class="s">"Netflix Release Date"</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s">"1D"</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="bp">True</span><span class="p">)).</span><span class="n">mean</span><span class="p">().</span><span class="n">dropna</span><span class="p">()</span>
+<span class="n">netflix_usa_t2</span> <span class="o">=</span> <span class="n">netflix_usa</span><span class="p">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pd</span><span class="p">.</span><span class="n">Grouper</span><span class="p">(</span><span class="n">key</span> <span class="o">=</span><span class="s">"Netflix Release Date"</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s">"1D"</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="bp">True</span><span class="p">)).</span><span class="n">mean</span><span class="p">().</span><span class="n">dropna</span><span class="p">()</span>
+<span class="n">netflix_index</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">224</span><span class="p">)))</span>
+<span class="n">netflix_usa_t2</span> <span class="o">=</span> <span class="n">netflix_usa_t2</span><span class="p">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">netflix_index</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="time-series-plots">Time Series Plots</h2>
+<p>px.line(netflix_usa_t, x=netflix_usa_t.index, y=”IMDb Score”)px.line(netflix_usa_t, x=netflix_usa_t.index, y=[“Rotten Tomatoes Score”,”Metacritic Score”])</p>
+<h2 id="linear-regression-of-imdb-score">Linear Regression of IMDb Score</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">imdb_x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">netflix_usa_t2</span><span class="p">.</span><span class="n">index</span><span class="p">).</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">imdb_y</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">netflix_usa_t2</span><span class="p">[</span><span class="s">"IMDb Score"</span><span class="p">])</span>
+<span class="n">imdb_model</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">().</span><span class="n">fit</span><span class="p">(</span><span class="n">imdb_x</span><span class="p">,</span> <span class="n">imdb_y</span><span class="p">)</span>
+
+<span class="n">imdb_model</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">imdb_x</span><span class="p">,</span> <span class="n">imdb_y</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"slope: "</span><span class="p">,</span><span class="n">imdb_model</span><span class="p">.</span><span class="n">coef_</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"intercept: "</span><span class="p">,</span> <span class="n">imdb_model</span><span class="p">.</span><span class="n">intercept_</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">slope</span><span class="p">:</span>  <span class="p">[</span><span class="mf">5.19102418e-05</span><span class="p">]</span>
+    <span class="n">intercept</span><span class="p">:</span>  <span class="mf">6.961315171694573</span>
+</code></pre></div></div>
+
+<p>From the above results, we can see that the average Netflix offering in the US has not gotten better over time.</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">annasanders.github.io</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">annasanders.github.io</li><li><a class="u-email" href="mailto:axsanders6@gmail.com">axsanders6@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/annasanders"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">annasanders</span></a></li><li><a href="https://www.linkedin.com/in/anna-sanders-6610aa162"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">anna-sanders-6610aa162</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>A place to display my coding projects.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

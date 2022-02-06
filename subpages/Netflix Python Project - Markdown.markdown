@@ -7,7 +7,7 @@ permalink: /python/netflix
 
 This project is to help me learn python syntax and packages and familiarize myself with the ecosystem as a whole. I tried to use various techniques for describing and mutating data, as well as displaying data.
 
-Unfortunately, I could not get my plotly plots to load correctly, so click [here]({{ site.url }}/assets/Python/Netflix_Project/Netflix_Python_Project_Plotly.pdf) for a PDF of the plotly graphs. 
+Unfortunately, I could not get my plotly plots to load correctly, so click [here]({{ site.url }}/files/Python/Netflix_Project/Netflix_Python_Project_Plotly.pdf) for a PDF of the plotly graphs. 
 
 
 ```python
@@ -128,6 +128,7 @@ print(np.vstack([v_rel_awards_n,v_nonrel_awards_n,(v_rel_awards_n - v_nonrel_awa
 print(np.vstack([v_rel_awards_r,v_nonrel_awards_r,(v_rel_awards_r - v_nonrel_awards_r)]))
 ```
 
+```python
     [[ 7.08104313  7.1         3.1         9.3       ]
      [ 6.94065321  7.          1.6         9.7       ]
      [ 0.14038992  0.1         1.5        -0.4       ]]
@@ -143,7 +144,7 @@ print(np.vstack([v_rel_awards_r,v_nonrel_awards_r,(v_rel_awards_r - v_nonrel_awa
     [[   5.95166163    3.            1.          127.        ]
      [   9.9918284     4.            1.          300.        ]
      [  -4.04016676   -1.            0.         -173.        ]]
-    
+```
 
 ## Matplotlib Histogram Plots
 
@@ -157,9 +158,9 @@ plt.title("IMDB Score")
 
 
 
-
+```python
     Text(0.5, 1.0, 'IMDB Score')
-
+```
 
 
 
@@ -178,9 +179,9 @@ plt.title("Rotten Tomatoes Score")
 
 
 
-
+```python
     Text(0.5, 1.0, 'Rotten Tomatoes Score')
-
+```
 
 
 
@@ -199,9 +200,9 @@ plt.title("Metacritic Score")
 
 
 
-
+```python
     Text(0.5, 1.0, 'Metacritic Score')
-
+```
 
 
 
@@ -221,9 +222,9 @@ plt.title("Awards Nominated For")
 
 
 
-
+```python
     Text(0.5, 1.0, 'Awards Nominated For')
-
+```
 
 
 
@@ -243,9 +244,9 @@ plt.title("Awards Received")
 
 
 
-
+```python
     Text(0.5, 1.0, 'Awards Received')
-
+```
 
 
 
@@ -298,7 +299,7 @@ print(ms_mc)
 print(ms_awards_n)
 print(ms_awards_r)
 ```
-
+```python
                     IMDb Score                 
                           mean median  min  max
     Series or Movie                            
@@ -329,7 +330,7 @@ print(ms_awards_r)
     Movie                 10.060777    4.0  1.0  300.0
     Series                 8.330275    3.0  1.0  232.0
     Dif                    1.730502    1.0  0.0   68.0
-    
+```    
 
 ## Plotly Box Plots (see pdf link)
 px.box(netflix_1, y="IMDb Score", color="Series or Movie")fig = px.box(netflix_1, y=["Rotten Tomatoes Score","Metacritic Score"], color="Series or Movie")
@@ -387,6 +388,7 @@ print(sp.stats.describe(netflix_int["Awards Nominated For"], nan_policy="omit"))
 print(sp.stats.describe(netflix_int["Awards Received"], nan_policy="omit"))
 ```
 
+```python
     DescribeResult(nobs=3427, minmax=(masked_array(data=3.1,
                  mask=False,
            fill_value=1e+20), masked_array(data=9.5,
@@ -457,7 +459,7 @@ print(sp.stats.describe(netflix_int["Awards Received"], nan_policy="omit"))
            fill_value=1e+20)), mean=10.075157146761411, variance=396.3828135004485, skewness=masked_array(data=5.83951315,
                  mask=False,
            fill_value=1e+20), kurtosis=50.26291545901329)
-    
+```    
 
 ## Creating Time Series
 
@@ -484,8 +486,9 @@ print("slope: ",imdb_model.coef_)
 print("intercept: ", imdb_model.intercept_)
 ```
 
+```python
     slope:  [5.19102418e-05]
     intercept:  6.961315171694573
-    
+```   
 
 From the above results, we can see that the average Netflix offering in the US has not gotten better over time.

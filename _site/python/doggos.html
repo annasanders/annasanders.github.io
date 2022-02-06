@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<link href="/css/pygments.css" rel="stylesheet"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Dog Web Scraper | annasanders.github.io</title>
+<meta name="generator" content="Jekyll v4.2.1" />
+<meta property="og:title" content="Dog Web Scraper" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A place to display my coding projects." />
+<meta property="og:description" content="A place to display my coding projects." />
+<link rel="canonical" href="http://localhost:4000/python/doggos" />
+<meta property="og:url" content="http://localhost:4000/python/doggos" />
+<meta property="og:site_name" content="annasanders.github.io" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Dog Web Scraper" />
+<script type="application/ld+json">
+{"headline":"Dog Web Scraper","url":"http://localhost:4000/python/doggos","@type":"WebPage","description":"A place to display my coding projects.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="annasanders.github.io" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">annasanders.github.io</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/r">🦏 R Projects</a><a class="page-link" href="/python">🐍 Python Projects</a><a class="page-link" href="/other">🦦 Other Projects</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Dog Web Scraper</h1>
+  </header>
+
+  <div class="post-content">
+    <h2 id="purpose">Purpose</h2>
+
+<p>To build and test a small-scale web scraper in python, using requests, Beautiful Soup to scrape html websites, as well as pandas and numpy to build and edit the created dataframe. This was particularly helpful to get familiar with reading html websites and finding the correct way to grab the data elements to report on.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">requests</span> <span class="kn">import</span> <span class="n">get</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+</code></pre></div></div>
+
+<h2 id="web-scraper">Web Scraper</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">url</span> <span class="o">=</span> <span class="s">"https://fetchwi.org/adopt"</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+<span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">results</span><span class="p">.</span><span class="n">text</span><span class="p">,</span> <span class="s">"html.parser"</span><span class="p">)</span>
+
+<span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tags</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">pagelinks</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">name_div</span> <span class="o">=</span> <span class="n">soup</span><span class="p">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">'div'</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">"summary-content sqs-gallery-meta-container"</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">container</span> <span class="ow">in</span> <span class="n">name_div</span><span class="p">:</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">container</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="s">'a'</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">"summary-title-link"</span><span class="p">).</span><span class="n">text</span>
+    <span class="n">names</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    
+    <span class="n">href</span> <span class="o">=</span> <span class="n">container</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="s">'a'</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">"summary-title-link"</span><span class="p">)[</span><span class="s">'href'</span><span class="p">]</span>
+    <span class="n">pagelinks</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">href</span><span class="p">)</span>
+    
+    <span class="n">div1</span> <span class="o">=</span> <span class="n">container</span><span class="p">(</span><span class="s">'div'</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">"summary-metadata-container summary-metadata-container--below-content"</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="n">div1</span><span class="p">:</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="n">span</span><span class="p">(</span><span class="s">'div'</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">"summary-metadata summary-metadata--primary"</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">tag1</span> <span class="ow">in</span> <span class="n">tag</span><span class="p">:</span>
+            <span class="n">tag2</span> <span class="o">=</span> <span class="n">tag1</span><span class="p">.</span><span class="n">text</span>
+            <span class="n">tags</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag2</span><span class="p">)</span>
+
+<span class="c1">## Additional date column to potentially track over-time changes
+</span><span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">()</span>
+
+<span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="n">date</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">names</span><span class="p">:</span> <span class="mi">54</span>
+    <span class="n">tags</span><span class="p">:</span> <span class="mi">54</span>
+    <span class="n">href</span><span class="p">:</span> <span class="mi">54</span>
+</code></pre></div></div>
+
+<h3 id="length-checking">Length Checking</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"names:"</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"tags:"</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">tags</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"href:"</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">pagelinks</span><span class="p">))</span>
+</code></pre></div></div>
+
+<h2 id="creating-doggo-datatable">Creating Doggo Datatable</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">doggos</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s">'name'</span><span class="p">:</span> <span class="n">names</span><span class="p">,</span>
+    <span class="s">'tags'</span><span class="p">:</span><span class="n">tags</span><span class="p">,</span>
+    <span class="s">'link'</span><span class="p">:</span><span class="n">pagelinks</span><span class="p">,</span>
+    <span class="s">'date'</span><span class="p">:</span> <span class="n">dates</span>
+    
+<span class="p">})</span>
+
+<span class="n">doggos</span> <span class="o">=</span> <span class="n">doggos</span><span class="p">.</span><span class="n">replace</span><span class="p">(</span><span class="n">to_replace</span><span class="o">=</span><span class="sa">r</span><span class="s">"\n"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s">""</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">doggos</span><span class="p">[</span><span class="s">"link"</span><span class="p">]</span> <span class="o">=</span> <span class="n">doggos</span><span class="p">[</span><span class="s">"link"</span><span class="p">].</span><span class="n">replace</span><span class="p">(</span><span class="n">to_replace</span><span class="o">=</span><span class="sa">r</span><span class="s">"^/"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s">"fetch.org/"</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">doggos</span> <span class="o">=</span> <span class="n">doggos</span><span class="p">.</span><span class="n">astype</span><span class="p">({</span>
+    <span class="s">'name'</span><span class="p">:</span> <span class="s">"string"</span><span class="p">,</span>
+    <span class="s">'tags'</span><span class="p">:</span> <span class="s">"string"</span><span class="p">,</span>
+    <span class="s">'link'</span><span class="p">:</span> <span class="s">"string"</span><span class="p">,</span>
+    <span class="s">'date'</span><span class="p">:</span> <span class="s">"object"</span>
+<span class="p">})</span>
+
+<span class="n">doggos</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>tags</th>
+      <th>link</th>
+      <th>date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Scooby</td>
+      <td>Crate trained, Housebroken, Good in the car, C...</td>
+      <td>fetch.org/doggos/scooby</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Clasby</td>
+      <td>Good with dogs, Crate trained, Housebroken, Go...</td>
+      <td>fetch.org/doggos/clasby</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Blue</td>
+      <td>Good with dogs, Crate trained, Housebroken, Go...</td>
+      <td>fetch.org/doggos/blue2</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Myah</td>
+      <td>Good with dogs, Crate trained, Good in the car...</td>
+      <td>fetch.org/doggos/myah</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Betty</td>
+      <td>Good with dogs, Crate trained, Housebroken, Go...</td>
+      <td>fetch.org/doggos/betty</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Lyla</td>
+      <td>Good with dogs, Crate trained, Housebroken, Go...</td>
+      <td>fetch.org/doggos/lyla</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Jasper</td>
+      <td>Good with dogs, Crate trained, Good in the car...</td>
+      <td>fetch.org/doggos/jasper</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Jolie</td>
+      <td>Housebroken, Crate trained, Good for beginner ...</td>
+      <td>fetch.org/doggos/jolie2</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Elliot</td>
+      <td>Good with dogs, Crate trained, Housebroken, Go...</td>
+      <td>fetch.org/doggos/elliot2</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Shiloh</td>
+      <td>Good with dogs, Crate trained, Housebroken, Ca...</td>
+      <td>fetch.org/doggos/shiloh2</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Apollo</td>
+      <td>Good with dogs, Crate trained, Housebroken, Go...</td>
+      <td>fetch.org/doggos/apollo2</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>Sugar</td>
+      <td>Housebroken, Good in the car, Can free roam wh...</td>
+      <td>fetch.org/doggos/sugar3</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>Marley</td>
+      <td>Good with dogs, Good with cats, Crate trained,...</td>
+      <td>fetch.org/doggos/marley</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>Ruby</td>
+      <td>Good with dogs, Crate trained, Good for beginn...</td>
+      <td>fetch.org/doggos/ruby</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>Ripley</td>
+      <td>Crate trained, Housebroken, Good in the car, W...</td>
+      <td>fetch.org/doggos/ripley</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>Beau</td>
+      <td>Good with dogs, Good in the car, Working on po...</td>
+      <td>fetch.org/doggos/beau</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>Sonny</td>
+      <td>Good with dogs, Good with older kids, Housebro...</td>
+      <td>fetch.org/doggos/sonny</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>Pound Cake</td>
+      <td>Good with dogs, Good with cats, Good in the ca...</td>
+      <td>fetch.org/doggos/pound-cake</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>Cheesecake</td>
+      <td>Good with dogs, Good with cats, Good with kids...</td>
+      <td>fetch.org/doggos/cheesecake</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>Sox</td>
+      <td>Good with dogs, Crate trained, Housebroken, Go...</td>
+      <td>fetch.org/doggos/sox</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>Cajun</td>
+      <td>Housebroken, Good in the car, Good running bud...</td>
+      <td>fetch.org/doggos/cajun2</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>Dexter</td>
+      <td>Good with dogs, Crate trained, Housebroken, Go...</td>
+      <td>fetch.org/doggos/dexter</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>Herky</td>
+      <td>Housebroken, Crate trained, Good in the car, W...</td>
+      <td>fetch.org/doggos/herky</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>Kevin</td>
+      <td>Good with dogs, Crate trained, Good for beginn...</td>
+      <td>fetch.org/doggos/kevin</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>Jrue</td>
+      <td>Good with dogs, Good with cats, Crate trained,...</td>
+      <td>fetch.org/doggos/jrue</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>Jackie</td>
+      <td>Good with dogs, Crate trained, Housebroken, Go...</td>
+      <td>fetch.org/doggos/jackie</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>Pride</td>
+      <td>Good with dogs, Crate trained, Housebroken, Go...</td>
+      <td>fetch.org/doggos/pride</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>Jordan</td>
+      <td>Good with dogs, Good in the car, Enjoys doggy ...</td>
+      <td>fetch.org/doggos/jordan</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>Stitch</td>
+      <td>Good with dogs, Crate trained, Housebroken, Ca...</td>
+      <td>fetch.org/doggos/stitch</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>Beck</td>
+      <td>Good with dogs, Crate trained, Housebroken, Go...</td>
+      <td>fetch.org/doggos/beck</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>Lucky</td>
+      <td>Good with dogs after slow intros, Good with ca...</td>
+      <td>fetch.org/doggos/lucky</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>Birdi</td>
+      <td>Good with dogs, Crate trained, Housebroken, Go...</td>
+      <td>fetch.org/doggos/birdi</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>Major</td>
+      <td>Housebroken, Can free roam when alone, Good in...</td>
+      <td>fetch.org/doggos/major</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>Marvin</td>
+      <td>Good with kids, Good with cats, Housebroken, C...</td>
+      <td>fetch.org/doggos/marvin</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>Tova</td>
+      <td>Good with dogs, Housebroken, Good in the car, ...</td>
+      <td>fetch.org/doggos/tova</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>Kuma</td>
+      <td>Crate trained, Housebroken, Walks well on leas...</td>
+      <td>fetch.org/doggos/kuma</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>Zoey</td>
+      <td>Needs slow intros to humans, Crate trained, Wa...</td>
+      <td>fetch.org/doggos/zoey-ditc</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>Simone</td>
+      <td></td>
+      <td>fetch.org/doggos/simone</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>Twinkle</td>
+      <td></td>
+      <td>fetch.org/doggos/twinkle</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <td>Hella</td>
+      <td></td>
+      <td>fetch.org/doggos/hella</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>Black Forest Cake</td>
+      <td></td>
+      <td>fetch.org/doggos/black-forest-cake</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>41</th>
+      <td>Alice</td>
+      <td></td>
+      <td>fetch.org/doggos/alice</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>42</th>
+      <td>Amelie</td>
+      <td></td>
+      <td>fetch.org/doggos/amelie</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>43</th>
+      <td>Trail</td>
+      <td></td>
+      <td>fetch.org/doggos/trail</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>44</th>
+      <td>Arby</td>
+      <td></td>
+      <td>fetch.org/doggos/arby</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>45</th>
+      <td>Dotty</td>
+      <td></td>
+      <td>fetch.org/doggos/dotty</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>46</th>
+      <td>Twerp</td>
+      <td></td>
+      <td>fetch.org/doggos/twerp</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>47</th>
+      <td>Bundt Cake</td>
+      <td></td>
+      <td>fetch.org/doggos/bundt-cake</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>48</th>
+      <td>Luciano</td>
+      <td></td>
+      <td>fetch.org/doggos/luciano</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>49</th>
+      <td>Luna</td>
+      <td></td>
+      <td>fetch.org/doggos/luna2</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>Roscoe</td>
+      <td></td>
+      <td>fetch.org/doggos/roscoe2</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>51</th>
+      <td>Spock</td>
+      <td></td>
+      <td>fetch.org/doggos/spock</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>52</th>
+      <td>August</td>
+      <td></td>
+      <td>fetch.org/doggos/august</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>53</th>
+      <td>Cupcake</td>
+      <td></td>
+      <td>fetch.org/doggos/cupcake</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="selecting-dogs-that-fit-my-lifestyle">Selecting Dogs that Fit my Lifestyle</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">potential_doggos</span> <span class="o">=</span> <span class="n">doggos</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">doggos</span><span class="p">[</span><span class="s">"tags"</span><span class="p">].</span><span class="nb">str</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="s">"Could live in an apartment"</span><span class="p">)]</span>
+
+<span class="n">potential_doggos</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>tags</th>
+      <th>link</th>
+      <th>date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>8</th>
+      <td>Elliot</td>
+      <td>Good with dogs, Crate trained, Housebroken, Go...</td>
+      <td>fetch.org/doggos/elliot2</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Shiloh</td>
+      <td>Good with dogs, Crate trained, Housebroken, Ca...</td>
+      <td>fetch.org/doggos/shiloh2</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>Sugar</td>
+      <td>Housebroken, Good in the car, Can free roam wh...</td>
+      <td>fetch.org/doggos/sugar3</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>Pride</td>
+      <td>Good with dogs, Crate trained, Housebroken, Go...</td>
+      <td>fetch.org/doggos/pride</td>
+      <td>2022-01-23 16:10:22.349954</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="final-thoughts">Final Thoughts</h2>
+
+<p>This works fairly well! I had a bit of issues grabbing the correct tag items, but overall it works well. Potential next steps would be to find a way to set up a reoccurring email to myself with this information, or setting up a scraper that could handle the links from the filtered table above.</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">annasanders.github.io</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">annasanders.github.io</li><li><a class="u-email" href="mailto:axsanders6@gmail.com">axsanders6@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/annasanders"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">annasanders</span></a></li><li><a href="https://www.linkedin.com/in/anna-sanders-6610aa162"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">anna-sanders-6610aa162</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>A place to display my coding projects.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

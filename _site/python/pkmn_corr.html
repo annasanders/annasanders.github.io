@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<link href="/css/pygments.css" rel="stylesheet"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Pokémon Correlations | annasanders.github.io</title>
+<meta name="generator" content="Jekyll v4.2.1" />
+<meta property="og:title" content="Pokémon Correlations" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A place to display my coding projects." />
+<meta property="og:description" content="A place to display my coding projects." />
+<link rel="canonical" href="http://localhost:4000/python/pkmn_corr" />
+<meta property="og:url" content="http://localhost:4000/python/pkmn_corr" />
+<meta property="og:site_name" content="annasanders.github.io" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Pokémon Correlations" />
+<script type="application/ld+json">
+{"headline":"Pokémon Correlations","url":"http://localhost:4000/python/pkmn_corr","@type":"WebPage","description":"A place to display my coding projects.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="annasanders.github.io" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">annasanders.github.io</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/r">🦏 R Projects</a><a class="page-link" href="/python">🐍 Python Projects</a><a class="page-link" href="/other">🦦 Other Projects</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Pokémon Correlations</h1>
+  </header>
+
+  <div class="post-content">
+    <h2 id="purpose">Purpose</h2>
+
+<p>To explore basic Machine Learning concepts (multiple regression) and python packages with data I already understand. I will specifically use Pokémon stats to explore potential correlations. I also tried to use loops where possible.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="n">mpl</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">plotly</span> <span class="k">as</span> <span class="n">pl</span>
+<span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="n">px</span>
+<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="n">sp</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">LabelEncoder</span><span class="p">,</span> <span class="n">OneHotEncoder</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">style</span><span class="p">.</span><span class="n">use</span><span class="p">(</span><span class="s">"classic"</span><span class="p">)</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+</code></pre></div></div>
+
+<h2 id="loading-in-data">Loading in Data</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pokedex_raw</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">"pokedex_(Update_05.20).csv"</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="filtering-data-to-releavnt-columns">Filtering Data to Releavnt Columns</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pokemon1</span> <span class="o">=</span> <span class="n">pokedex_raw</span><span class="p">[[</span>
+    <span class="s">'pokedex_number'</span><span class="p">,</span> <span class="s">'name'</span><span class="p">,</span> <span class="s">'generation'</span><span class="p">,</span> <span class="s">'type_1'</span><span class="p">,</span> <span class="s">'type_2'</span><span class="p">,</span><span class="s">'total_points'</span><span class="p">,</span> <span class="s">'hp'</span><span class="p">,</span> <span class="s">'attack'</span><span class="p">,</span> <span class="s">'defense'</span><span class="p">,</span>
+       <span class="s">'sp_attack'</span><span class="p">,</span> <span class="s">'sp_defense'</span><span class="p">,</span> <span class="s">'speed'</span>
+<span class="p">]].</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">pokemon1</span><span class="p">[</span><span class="s">"type_2"</span><span class="p">].</span><span class="n">fillna</span><span class="p">(</span><span class="s">"None"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">pokemon1</span> <span class="o">=</span> <span class="n">pokemon1</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="s">"int64"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s">"ignore"</span><span class="p">)</span>
+<span class="n">pokemon1</span> <span class="o">=</span> <span class="n">pokemon1</span><span class="p">.</span><span class="n">astype</span><span class="p">({</span>
+    <span class="s">"name"</span><span class="p">:</span> <span class="s">"string"</span><span class="p">,</span>
+    <span class="s">"type_1"</span><span class="p">:</span> <span class="s">"string"</span><span class="p">,</span>
+    <span class="s">"type_2"</span><span class="p">:</span> <span class="s">"string"</span>
+    <span class="p">})</span>
+</code></pre></div></div>
+
+<h3 id="making-recursive-type-tables">Making Recursive Type Tables</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">type_1c</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">unique</span><span class="p">(</span><span class="n">pokemon1</span><span class="p">[</span><span class="s">"type_1"</span><span class="p">])</span>
+<span class="n">type_2c</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">unique</span><span class="p">(</span><span class="n">pokemon1</span><span class="p">[</span><span class="s">"type_2"</span><span class="p">])</span>
+<span class="n">type_2c</span> 
+
+<span class="n">pokemon2</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">type_1c</span><span class="p">}</span>
+<span class="n">pokemon3</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">type_2c</span><span class="p">}</span>
+
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">type_1c</span><span class="p">:</span>
+    <span class="n">pokemon2</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">pokemon1</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pokemon1</span><span class="p">[</span><span class="s">"type_1"</span><span class="p">]</span> <span class="o">==</span> <span class="n">x</span><span class="p">]</span>
+    
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">type_2c</span><span class="p">:</span>
+    <span class="n">pokemon3</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">pokemon1</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pokemon1</span><span class="p">[</span><span class="s">"type_2"</span><span class="p">]</span> <span class="o">==</span> <span class="n">x</span><span class="p">]</span>
+</code></pre></div></div>
+
+<h3 id="making-table-for-legendary-vs-non-legend">Making Table for Legendary vs. Non-Legend</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pokemon_l</span> <span class="o">=</span> <span class="n">pokedex_raw</span><span class="p">[[</span><span class="s">'pokedex_number'</span><span class="p">,</span> <span class="s">'name'</span><span class="p">,</span> <span class="s">'generation'</span><span class="p">,</span><span class="s">'status'</span><span class="p">,</span><span class="s">'type_1'</span><span class="p">,</span> <span class="s">'type_2'</span><span class="p">,</span><span class="s">'total_points'</span><span class="p">,</span> <span class="s">'hp'</span><span class="p">,</span> <span class="s">'attack'</span><span class="p">,</span> <span class="s">'defense'</span><span class="p">,</span>
+       <span class="s">'sp_attack'</span><span class="p">,</span> <span class="s">'sp_defense'</span><span class="p">,</span> <span class="s">'speed'</span><span class="p">]].</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">pokemon_l</span><span class="p">[</span><span class="s">"type_2"</span><span class="p">].</span><span class="n">fillna</span><span class="p">(</span><span class="s">"None"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">pokemon_l</span> <span class="o">=</span> <span class="n">pokemon_l</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="s">"int64"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s">"ignore"</span><span class="p">)</span>
+<span class="n">pokemon_l</span> <span class="o">=</span> <span class="n">pokemon_l</span><span class="p">.</span><span class="n">astype</span><span class="p">({</span>
+    <span class="s">"name"</span><span class="p">:</span> <span class="s">"string"</span><span class="p">,</span>
+    <span class="s">"type_1"</span><span class="p">:</span> <span class="s">"string"</span><span class="p">,</span>
+    <span class="s">"type_2"</span><span class="p">:</span> <span class="s">"string"</span><span class="p">,</span>
+    <span class="s">"status"</span><span class="p">:</span> <span class="s">"string"</span>
+    <span class="p">})</span>
+
+<span class="n">pokemon_legend</span> <span class="o">=</span> <span class="n">pokemon_l</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pokemon_l</span><span class="p">[</span><span class="s">'status'</span><span class="p">].</span><span class="n">isin</span><span class="p">([</span><span class="s">"Legendary"</span><span class="p">,</span><span class="s">"Mythical"</span><span class="p">])</span> <span class="p">]</span>
+<span class="n">pokemon_normal</span> <span class="o">=</span> <span class="n">pokemon_l</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pokemon_l</span><span class="p">[</span><span class="s">'status'</span><span class="p">].</span><span class="n">isin</span><span class="p">([</span><span class="s">"Normal"</span><span class="p">,</span><span class="s">"Sub Legendary"</span><span class="p">])]</span>
+</code></pre></div></div>
+
+<h2 id="making-tables-for-heatmap">Making Tables for Heatmap</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pokemon_h</span> <span class="o">=</span> <span class="n">pokedex_raw</span><span class="p">[[</span><span class="s">'status'</span><span class="p">,</span><span class="s">'type_1'</span><span class="p">,</span> <span class="s">'type_2'</span><span class="p">,</span><span class="s">'total_points'</span><span class="p">]].</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">pokemon_h</span><span class="p">[</span><span class="s">"type_2"</span><span class="p">].</span><span class="n">fillna</span><span class="p">(</span><span class="s">"None"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">pokemon_h</span> <span class="o">=</span> <span class="n">pokemon_h</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="s">"int64"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s">"ignore"</span><span class="p">)</span>
+<span class="n">pokemon_h</span> <span class="o">=</span> <span class="n">pokemon_h</span><span class="p">.</span><span class="n">astype</span><span class="p">({</span>
+    <span class="s">"type_1"</span><span class="p">:</span> <span class="s">"category"</span><span class="p">,</span>
+    <span class="s">"type_2"</span><span class="p">:</span> <span class="s">"category"</span><span class="p">,</span>
+    <span class="s">"status"</span><span class="p">:</span> <span class="s">"category"</span>
+    <span class="p">})</span>
+
+<span class="n">pokemon_h_cols</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">pokemon_h</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">"type_1"</span><span class="p">,</span> <span class="s">"type_2"</span><span class="p">,</span> <span class="s">"status"</span><span class="p">],</span> <span class="n">prefix</span><span class="o">=</span><span class="p">(</span><span class="s">"Type_1"</span><span class="p">,</span> <span class="s">"Type_2"</span><span class="p">,</span> <span class="s">"Status"</span><span class="p">))</span>
+</code></pre></div></div>
+
+<h2 id="matplotlib">Matplotlib</h2>
+
+<p>In order to get a better idea of the distribution for the relationship between a Pokémon’s main, or the first type, and their overall power, I have plotted the following:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig</span><span class="p">,</span> <span class="n">pkmn_p</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">constrained_layout</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">pkmn_p</span><span class="p">.</span><span class="n">xaxis</span><span class="p">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">pkmn_p</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">"All Pokemon"</span><span class="p">)</span>
+<span class="n">pkmn_p</span><span class="p">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1200</span><span class="p">])</span>
+
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">type_1c</span><span class="p">:</span>
+    <span class="n">pkmn_p</span><span class="p">.</span><span class="n">eventplot</span><span class="p">(</span><span class="n">pokemon2</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s">"total_points"</span><span class="p">],</span> <span class="n">orientation</span><span class="o">=</span><span class="s">"vertical"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span><span class="s">"black"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/plots/Python/Pokemon_ML/output_16_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig</span><span class="p">,</span> <span class="n">pkmn_p2</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span> <span class="n">constrained_layout</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">fig</span><span class="p">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s">"Type 1 Distribution"</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>
+
+<span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">]</span>
+<span class="n">j</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">j</span><span class="p">:</span>
+        <span class="n">pkmn_p2</span><span class="p">[</span><span class="n">z</span><span class="p">,</span><span class="n">x</span><span class="p">].</span><span class="n">xaxis</span><span class="p">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">pkmn_p2</span><span class="p">[</span><span class="n">z</span><span class="p">,</span><span class="n">x</span><span class="p">].</span><span class="n">yaxis</span><span class="p">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="n">n</span><span class="o">=-</span><span class="mi">1</span>
+<span class="n">m</span><span class="o">=-</span><span class="mi">10</span>
+
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">type_1c</span><span class="p">:</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">m</span><span class="o">+</span><span class="mi">1</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">9</span><span class="p">:</span>
+        <span class="n">pkmn_p2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">n</span><span class="p">].</span><span class="n">eventplot</span><span class="p">(</span><span class="n">pokemon2</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s">"total_points"</span><span class="p">],</span> <span class="n">orientation</span><span class="o">=</span><span class="s">"vertical"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"black"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">pkmn_p2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">n</span><span class="p">].</span><span class="n">set_title</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">pkmn_p2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">n</span><span class="p">].</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1200</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pkmn_p2</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">].</span><span class="n">eventplot</span><span class="p">(</span><span class="n">pokemon2</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s">"total_points"</span><span class="p">],</span> <span class="n">orientation</span><span class="o">=</span><span class="s">"vertical"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"black"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">pkmn_p2</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">].</span><span class="n">set_title</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">pkmn_p2</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">].</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1200</span><span class="p">])</span>
+
+    
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/plots/Python/Pokemon_ML/output_17_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig</span><span class="p">,</span> <span class="n">pkmn_p3</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span> <span class="n">constrained_layout</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">fig</span><span class="p">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s">"Type 2 Distribution"</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>
+
+<span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">]</span>
+<span class="n">j</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">j</span><span class="p">:</span>
+        <span class="n">pkmn_p3</span><span class="p">[</span><span class="n">z</span><span class="p">,</span><span class="n">x</span><span class="p">].</span><span class="n">xaxis</span><span class="p">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">pkmn_p3</span><span class="p">[</span><span class="n">z</span><span class="p">,</span><span class="n">x</span><span class="p">].</span><span class="n">yaxis</span><span class="p">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="n">n</span><span class="o">=-</span><span class="mi">1</span>
+<span class="n">m</span><span class="o">=-</span><span class="mi">11</span>
+
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">type_2c</span><span class="p">:</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">m</span><span class="o">+</span><span class="mi">1</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="n">pkmn_p3</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">n</span><span class="p">].</span><span class="n">eventplot</span><span class="p">(</span><span class="n">pokemon3</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s">"total_points"</span><span class="p">],</span> <span class="n">orientation</span><span class="o">=</span><span class="s">"vertical"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"black"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">pkmn_p3</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">n</span><span class="p">].</span><span class="n">set_title</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">pkmn_p3</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">n</span><span class="p">].</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1200</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pkmn_p3</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">].</span><span class="n">eventplot</span><span class="p">(</span><span class="n">pokemon3</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s">"total_points"</span><span class="p">],</span> <span class="n">orientation</span><span class="o">=</span><span class="s">"vertical"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"black"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">pkmn_p3</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">].</span><span class="n">set_title</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">pkmn_p3</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">].</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1200</span><span class="p">])</span>
+
+    
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/plots/Python/Pokemon_ML/output_18_0.png" alt="png" /></p>
+
+<p>Here, we can see various first type distributions on overall power (total_power).</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig</span><span class="p">,</span> <span class="n">pkmn_p3</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">constrained_layout</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">fig</span><span class="p">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s">"Legendary vs. Non-Legendary"</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>
+
+<span class="n">i</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
+    <span class="n">pkmn_p3</span><span class="p">[</span><span class="n">x</span><span class="p">].</span><span class="n">xaxis</span><span class="p">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">pkmn_p3</span><span class="p">[</span><span class="n">x</span><span class="p">].</span><span class="n">yaxis</span><span class="p">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="n">pkmn_p3</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">eventplot</span><span class="p">(</span><span class="n">pokemon_legend</span><span class="p">[</span><span class="s">"total_points"</span><span class="p">],</span> <span class="n">orientation</span><span class="o">=</span><span class="s">"vertical"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"black"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">pkmn_p3</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">set_title</span><span class="p">(</span><span class="s">"Legendary and Mythical"</span><span class="p">)</span>
+<span class="n">pkmn_p3</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1200</span><span class="p">])</span>
+<span class="n">pkmn_p3</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">eventplot</span><span class="p">(</span><span class="n">pokemon_normal</span><span class="p">[</span><span class="s">"total_points"</span><span class="p">],</span> <span class="n">orientation</span><span class="o">=</span><span class="s">"vertical"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"black"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">pkmn_p3</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">set_title</span><span class="p">(</span><span class="s">"Non-lendary or Mythical"</span><span class="p">)</span>
+<span class="n">pkmn_p3</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1200</span><span class="p">])</span>
+
+
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/plots/Python/Pokemon_ML/output_20_0.png" alt="png" /></p>
+
+<h3 id="correlation-plots">Correlation Plots</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pokemon_h_corr1</span> <span class="o">=</span> <span class="n">pokemon_h_cols</span><span class="p">.</span><span class="n">corr</span><span class="p">()</span>
+
+<span class="n">pokemon_h_corr1</span> <span class="o">=</span> <span class="n">pokemon_h_corr1</span><span class="p">.</span><span class="n">loc</span><span class="p">[:,[</span><span class="s">'Type_1_Bug'</span><span class="p">,</span> <span class="s">'Type_1_Dark'</span><span class="p">,</span> <span class="s">'Type_1_Dragon'</span><span class="p">,</span>
+       <span class="s">'Type_1_Electric'</span><span class="p">,</span> <span class="s">'Type_1_Fairy'</span><span class="p">,</span> <span class="s">'Type_1_Fighting'</span><span class="p">,</span> <span class="s">'Type_1_Fire'</span><span class="p">,</span>
+       <span class="s">'Type_1_Flying'</span><span class="p">,</span> <span class="s">'Type_1_Ghost'</span><span class="p">,</span> <span class="s">'Type_1_Grass'</span><span class="p">,</span> <span class="s">'Type_1_Ground'</span><span class="p">,</span>
+       <span class="s">'Type_1_Ice'</span><span class="p">,</span> <span class="s">'Type_1_Normal'</span><span class="p">,</span> <span class="s">'Type_1_Poison'</span><span class="p">,</span> <span class="s">'Type_1_Psychic'</span><span class="p">,</span>
+       <span class="s">'Type_1_Rock'</span><span class="p">,</span> <span class="s">'Type_1_Steel'</span><span class="p">,</span> <span class="s">'Type_1_Water'</span><span class="p">]].</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="n">pokemon_h_corr1</span> <span class="o">=</span> <span class="n">pokemon_h_corr1</span><span class="p">.</span><span class="n">loc</span><span class="p">[[</span><span class="s">"total_points"</span><span class="p">]]</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Type 1 on Total Points"</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">pkmn_h1</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">pokemon_h_corr1</span><span class="p">,</span> <span class="n">cbar</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">"bone"</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/plots/Python/Pokemon_ML/output_22_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pokemon_h_corr2</span> <span class="o">=</span> <span class="n">pokemon_h_cols</span><span class="p">.</span><span class="n">corr</span><span class="p">()</span>
+
+<span class="n">pokemon_h_corr2</span> <span class="o">=</span> <span class="n">pokemon_h_corr2</span><span class="p">.</span><span class="n">loc</span><span class="p">[:,[</span><span class="s">'Type_2_Bug'</span><span class="p">,</span>
+       <span class="s">'Type_2_Dark'</span><span class="p">,</span> <span class="s">'Type_2_Dragon'</span><span class="p">,</span> <span class="s">'Type_2_Electric'</span><span class="p">,</span> <span class="s">'Type_2_Fairy'</span><span class="p">,</span>
+       <span class="s">'Type_2_Fighting'</span><span class="p">,</span> <span class="s">'Type_2_Fire'</span><span class="p">,</span> <span class="s">'Type_2_Flying'</span><span class="p">,</span> <span class="s">'Type_2_Ghost'</span><span class="p">,</span>
+       <span class="s">'Type_2_Grass'</span><span class="p">,</span> <span class="s">'Type_2_Ground'</span><span class="p">,</span> <span class="s">'Type_2_Ice'</span><span class="p">,</span> <span class="s">'Type_2_None'</span><span class="p">,</span>
+       <span class="s">'Type_2_Normal'</span><span class="p">,</span> <span class="s">'Type_2_Poison'</span><span class="p">,</span> <span class="s">'Type_2_Psychic'</span><span class="p">,</span> <span class="s">'Type_2_Rock'</span><span class="p">,</span>
+       <span class="s">'Type_2_Steel'</span><span class="p">,</span> <span class="s">'Type_2_Water'</span><span class="p">]].</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="n">pokemon_h_corr2</span> <span class="o">=</span> <span class="n">pokemon_h_corr2</span><span class="p">.</span><span class="n">loc</span><span class="p">[[</span><span class="s">"total_points"</span><span class="p">]]</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Type 2 on Total Points"</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">pkmn_h2</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">pokemon_h_corr2</span><span class="p">,</span> <span class="n">cbar</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">"bone"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/plots/Python/Pokemon_ML/output_23_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pokemon_h_corr3</span> <span class="o">=</span> <span class="n">pokemon_h_cols</span><span class="p">.</span><span class="n">corr</span><span class="p">()</span>
+
+<span class="n">pokemon_h_corr3</span> <span class="o">=</span> <span class="n">pokemon_h_corr3</span><span class="p">.</span><span class="n">loc</span><span class="p">[:,[</span><span class="s">'Type_1_Bug'</span><span class="p">,</span> <span class="s">'Type_1_Dark'</span><span class="p">,</span> <span class="s">'Type_1_Dragon'</span><span class="p">,</span>
+       <span class="s">'Type_1_Electric'</span><span class="p">,</span> <span class="s">'Type_1_Fairy'</span><span class="p">,</span> <span class="s">'Type_1_Fighting'</span><span class="p">,</span> <span class="s">'Type_1_Fire'</span><span class="p">,</span>
+       <span class="s">'Type_1_Flying'</span><span class="p">,</span> <span class="s">'Type_1_Ghost'</span><span class="p">,</span> <span class="s">'Type_1_Grass'</span><span class="p">,</span> <span class="s">'Type_1_Ground'</span><span class="p">,</span>
+       <span class="s">'Type_1_Ice'</span><span class="p">,</span> <span class="s">'Type_1_Normal'</span><span class="p">,</span> <span class="s">'Type_1_Poison'</span><span class="p">,</span> <span class="s">'Type_1_Psychic'</span><span class="p">,</span>
+       <span class="s">'Type_1_Rock'</span><span class="p">,</span> <span class="s">'Type_1_Steel'</span><span class="p">,</span> <span class="s">'Type_1_Water'</span><span class="p">]].</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="n">pokemon_h_corr3</span> <span class="o">=</span> <span class="n">pokemon_h_corr3</span><span class="p">.</span><span class="n">loc</span><span class="p">[[</span><span class="s">'Type_2_Bug'</span><span class="p">,</span>
+       <span class="s">'Type_2_Dark'</span><span class="p">,</span> <span class="s">'Type_2_Dragon'</span><span class="p">,</span> <span class="s">'Type_2_Electric'</span><span class="p">,</span> <span class="s">'Type_2_Fairy'</span><span class="p">,</span>
+       <span class="s">'Type_2_Fighting'</span><span class="p">,</span> <span class="s">'Type_2_Fire'</span><span class="p">,</span> <span class="s">'Type_2_Flying'</span><span class="p">,</span> <span class="s">'Type_2_Ghost'</span><span class="p">,</span>
+       <span class="s">'Type_2_Grass'</span><span class="p">,</span> <span class="s">'Type_2_Ground'</span><span class="p">,</span> <span class="s">'Type_2_Ice'</span><span class="p">,</span> <span class="s">'Type_2_None'</span><span class="p">,</span>
+       <span class="s">'Type_2_Normal'</span><span class="p">,</span> <span class="s">'Type_2_Poison'</span><span class="p">,</span> <span class="s">'Type_2_Psychic'</span><span class="p">,</span> <span class="s">'Type_2_Rock'</span><span class="p">,</span>
+       <span class="s">'Type_2_Steel'</span><span class="p">,</span> <span class="s">'Type_2_Water'</span><span class="p">]]</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Type 1 on Type 2"</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">pkmn_h3</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">pokemon_h_corr3</span><span class="p">,</span> <span class="n">cbar</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">"bone"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/plots/Python/Pokemon_ML/output_24_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pokemon_h_corr4</span> <span class="o">=</span> <span class="n">pokemon_h_cols</span><span class="p">.</span><span class="n">corr</span><span class="p">()</span>
+
+<span class="n">pokemon_h_corr4</span> <span class="o">=</span> <span class="n">pokemon_h_corr4</span><span class="p">.</span><span class="n">loc</span><span class="p">[:,[</span><span class="s">'Status_Legendary'</span><span class="p">,</span>
+       <span class="s">'Status_Mythical'</span><span class="p">,</span> <span class="s">'Status_Normal'</span><span class="p">,</span> <span class="s">'Status_Sub Legendary'</span><span class="p">]].</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="n">pokemon_h_corr4</span> <span class="o">=</span> <span class="n">pokemon_h_corr4</span><span class="p">.</span><span class="n">loc</span><span class="p">[[</span><span class="s">"total_points"</span><span class="p">]]</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Legendary Status on Total Points"</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">pkmn_h4</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">pokemon_h_corr4</span><span class="p">,</span> <span class="n">cbar</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">"bone"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/plots/Python/Pokemon_ML/output_25_0.png" alt="png" /></p>
+
+<h2 id="multiple-linear-regression-model">Multiple Linear Regression Model</h2>
+
+<p>While no calculated coefficient is particularly large, it would still be interesting to see what multi-regression equation can be made from the data to predict total power for a hypothetical Pokémon.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pokemon_h_cols</span><span class="p">.</span><span class="n">columns</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">Index</span><span class="p">([</span><span class="s">'total_points'</span><span class="p">,</span> <span class="s">'Type_1_Bug'</span><span class="p">,</span> <span class="s">'Type_1_Dark'</span><span class="p">,</span> <span class="s">'Type_1_Dragon'</span><span class="p">,</span>
+           <span class="s">'Type_1_Electric'</span><span class="p">,</span> <span class="s">'Type_1_Fairy'</span><span class="p">,</span> <span class="s">'Type_1_Fighting'</span><span class="p">,</span> <span class="s">'Type_1_Fire'</span><span class="p">,</span>
+           <span class="s">'Type_1_Flying'</span><span class="p">,</span> <span class="s">'Type_1_Ghost'</span><span class="p">,</span> <span class="s">'Type_1_Grass'</span><span class="p">,</span> <span class="s">'Type_1_Ground'</span><span class="p">,</span>
+           <span class="s">'Type_1_Ice'</span><span class="p">,</span> <span class="s">'Type_1_Normal'</span><span class="p">,</span> <span class="s">'Type_1_Poison'</span><span class="p">,</span> <span class="s">'Type_1_Psychic'</span><span class="p">,</span>
+           <span class="s">'Type_1_Rock'</span><span class="p">,</span> <span class="s">'Type_1_Steel'</span><span class="p">,</span> <span class="s">'Type_1_Water'</span><span class="p">,</span> <span class="s">'Type_2_Bug'</span><span class="p">,</span>
+           <span class="s">'Type_2_Dark'</span><span class="p">,</span> <span class="s">'Type_2_Dragon'</span><span class="p">,</span> <span class="s">'Type_2_Electric'</span><span class="p">,</span> <span class="s">'Type_2_Fairy'</span><span class="p">,</span>
+           <span class="s">'Type_2_Fighting'</span><span class="p">,</span> <span class="s">'Type_2_Fire'</span><span class="p">,</span> <span class="s">'Type_2_Flying'</span><span class="p">,</span> <span class="s">'Type_2_Ghost'</span><span class="p">,</span>
+           <span class="s">'Type_2_Grass'</span><span class="p">,</span> <span class="s">'Type_2_Ground'</span><span class="p">,</span> <span class="s">'Type_2_Ice'</span><span class="p">,</span> <span class="s">'Type_2_None'</span><span class="p">,</span>
+           <span class="s">'Type_2_Normal'</span><span class="p">,</span> <span class="s">'Type_2_Poison'</span><span class="p">,</span> <span class="s">'Type_2_Psychic'</span><span class="p">,</span> <span class="s">'Type_2_Rock'</span><span class="p">,</span>
+           <span class="s">'Type_2_Steel'</span><span class="p">,</span> <span class="s">'Type_2_Water'</span><span class="p">,</span> <span class="s">'Status_Legendary'</span><span class="p">,</span> <span class="s">'Status_Mythical'</span><span class="p">,</span>
+           <span class="s">'Status_Normal'</span><span class="p">,</span> <span class="s">'Status_Sub Legendary'</span><span class="p">],</span>
+          <span class="n">dtype</span><span class="o">=</span><span class="s">'object'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pokemon_reg</span> <span class="o">=</span> <span class="n">pokemon_h_cols</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">pokemon_reg</span> <span class="p">[[</span><span class="s">'Type_1_Bug'</span><span class="p">,</span> <span class="s">'Type_1_Dark'</span><span class="p">,</span> <span class="s">'Type_1_Dragon'</span><span class="p">,</span>
+       <span class="s">'Type_1_Electric'</span><span class="p">,</span> <span class="s">'Type_1_Fairy'</span><span class="p">,</span> <span class="s">'Type_1_Fighting'</span><span class="p">,</span> <span class="s">'Type_1_Fire'</span><span class="p">,</span>
+       <span class="s">'Type_1_Flying'</span><span class="p">,</span> <span class="s">'Type_1_Ghost'</span><span class="p">,</span> <span class="s">'Type_1_Grass'</span><span class="p">,</span> <span class="s">'Type_1_Ground'</span><span class="p">,</span>
+       <span class="s">'Type_1_Ice'</span><span class="p">,</span> <span class="s">'Type_1_Normal'</span><span class="p">,</span> <span class="s">'Type_1_Poison'</span><span class="p">,</span> <span class="s">'Type_1_Psychic'</span><span class="p">,</span>
+       <span class="s">'Type_1_Rock'</span><span class="p">,</span> <span class="s">'Type_1_Steel'</span><span class="p">,</span> <span class="s">'Type_1_Water'</span><span class="p">,</span> <span class="s">'Type_2_Bug'</span><span class="p">,</span>
+       <span class="s">'Type_2_Dark'</span><span class="p">,</span> <span class="s">'Type_2_Dragon'</span><span class="p">,</span> <span class="s">'Type_2_Electric'</span><span class="p">,</span> <span class="s">'Type_2_Fairy'</span><span class="p">,</span>
+       <span class="s">'Type_2_Fighting'</span><span class="p">,</span> <span class="s">'Type_2_Fire'</span><span class="p">,</span> <span class="s">'Type_2_Flying'</span><span class="p">,</span> <span class="s">'Type_2_Ghost'</span><span class="p">,</span>
+       <span class="s">'Type_2_Grass'</span><span class="p">,</span> <span class="s">'Type_2_Ground'</span><span class="p">,</span> <span class="s">'Type_2_Ice'</span><span class="p">,</span> <span class="s">'Type_2_None'</span><span class="p">,</span>
+       <span class="s">'Type_2_Normal'</span><span class="p">,</span> <span class="s">'Type_2_Poison'</span><span class="p">,</span> <span class="s">'Type_2_Psychic'</span><span class="p">,</span> <span class="s">'Type_2_Rock'</span><span class="p">,</span>
+       <span class="s">'Type_2_Steel'</span><span class="p">,</span> <span class="s">'Type_2_Water'</span><span class="p">,</span> <span class="s">'Status_Legendary'</span><span class="p">,</span> <span class="s">'Status_Mythical'</span><span class="p">,</span>
+       <span class="s">'Status_Normal'</span><span class="p">,</span> <span class="s">'Status_Sub Legendary'</span><span class="p">]]</span>
+
+<span class="n">y</span> <span class="o">=</span> <span class="n">pokemon_reg</span><span class="p">[</span><span class="s">'total_points'</span><span class="p">]</span>
+
+<span class="n">pkmn_mlr</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span>
+<span class="n">pkmn_mlr</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"Intercept: "</span><span class="p">,</span> <span class="n">pkmn_mlr</span><span class="p">.</span><span class="n">intercept_</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Coefficients:"</span><span class="p">)</span>
+<span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pkmn_mlr</span><span class="p">.</span><span class="n">coef_</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">Intercept</span><span class="p">:</span>  <span class="mf">4143338107306098.5</span>
+    <span class="n">Coefficients</span><span class="p">:</span>
+    <span class="p">[(</span><span class="s">'Type_1_Bug'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839108.0</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Dark'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839072.5</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Dragon'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839015.0</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Electric'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839035.0</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Fairy'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839043.0</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Fighting'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839039.5</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Fire'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839029.0</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Flying'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839079.0</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Ghost'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839040.5</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Grass'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839062.5</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Ground'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839065.5</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Ice'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839041.0</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Normal'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839068.0</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Poison'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839067.5</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Psychic'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839047.0</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Rock'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839044.0</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Steel'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839034.0</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_1_Water'</span><span class="p">,</span> <span class="o">-</span><span class="mf">3807471977839048.5</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Bug'</span><span class="p">,</span> <span class="mf">6170475426273.1455</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Dark'</span><span class="p">,</span> <span class="mf">6170475426380.471</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Dragon'</span><span class="p">,</span> <span class="mf">6170475426392.167</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Electric'</span><span class="p">,</span> <span class="mf">6170475426330.988</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Fairy'</span><span class="p">,</span> <span class="mf">6170475426317.483</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Fighting'</span><span class="p">,</span> <span class="mf">6170475426379.596</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Fire'</span><span class="p">,</span> <span class="mf">6170475426358.753</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Flying'</span><span class="p">,</span> <span class="mf">6170475426334.623</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Ghost'</span><span class="p">,</span> <span class="mf">6170475426324.181</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Grass'</span><span class="p">,</span> <span class="mf">6170475426314.202</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Ground'</span><span class="p">,</span> <span class="mf">6170475426326.583</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Ice'</span><span class="p">,</span> <span class="mf">6170475426377.995</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_None'</span><span class="p">,</span> <span class="mf">6170475426307.798</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Normal'</span><span class="p">,</span> <span class="mf">6170475426305.408</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Poison'</span><span class="p">,</span> <span class="mf">6170475426318.524</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Psychic'</span><span class="p">,</span> <span class="mf">6170475426350.353</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Rock'</span><span class="p">,</span> <span class="mf">6170475426351.304</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Steel'</span><span class="p">,</span> <span class="mf">6170475426365.589</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Type_2_Water'</span><span class="p">,</span> <span class="mf">6170475426315.487</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Status_Legendary'</span><span class="p">,</span> <span class="o">-</span><span class="mf">342036604892725.25</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Status_Mythical'</span><span class="p">,</span> <span class="o">-</span><span class="mf">342036604892781.5</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Status_Normal'</span><span class="p">,</span> <span class="o">-</span><span class="mf">342036604892952.9</span><span class="p">),</span>
+     <span class="p">(</span><span class="s">'Status_Sub Legendary'</span><span class="p">,</span> <span class="o">-</span><span class="mf">342036604892801.94</span><span class="p">)]</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">metrics</span>
+
+<span class="n">x_train</span><span class="p">,</span> <span class="n">x_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">random_state</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="n">y_pred_pkmn_mlr</span> <span class="o">=</span> <span class="n">pkmn_mlr</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+
+<span class="n">pkmn_mlr_diff</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">"Actual Value"</span><span class="p">:</span> <span class="n">y_test</span><span class="p">,</span> <span class="s">"Predicted Value"</span><span class="p">:</span> <span class="n">y_pred_pkmn_mlr</span><span class="p">})</span>
+
+<span class="n">pkmn_mlr_diff</span><span class="p">[</span><span class="s">"Percentage Difference"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">abs</span><span class="p">((</span><span class="n">pkmn_mlr_diff</span><span class="p">[</span><span class="s">"Actual Value"</span><span class="p">]</span> <span class="o">-</span> <span class="n">pkmn_mlr_diff</span><span class="p">[</span><span class="s">"Predicted Value"</span><span class="p">]))</span><span class="o">/</span><span class="p">((</span><span class="n">pkmn_mlr_diff</span><span class="p">[</span><span class="s">"Actual Value"</span><span class="p">]</span> <span class="o">+</span> <span class="n">pkmn_mlr_diff</span><span class="p">[</span><span class="s">"Predicted Value"</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="mi">100</span>
+
+<span class="n">pkmn_mlr_diff</span><span class="p">.</span><span class="n">agg</span><span class="p">({</span><span class="s">"Percentage Difference"</span><span class="p">:</span>  <span class="p">[</span><span class="s">"mean"</span><span class="p">,</span> <span class="s">"median"</span><span class="p">,</span> <span class="s">"min"</span><span class="p">,</span> <span class="s">"max"</span><span class="p">]})</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Percentage Difference</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean</th>
+      <td>20.794235</td>
+    </tr>
+    <tr>
+      <th>median</th>
+      <td>19.451908</td>
+    </tr>
+    <tr>
+      <th>min</th>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td>67.768595</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">metrics</span>
+
+<span class="n">meanAbErr</span> <span class="o">=</span> <span class="n">metrics</span><span class="p">.</span><span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_pkmn_mlr</span><span class="p">)</span>
+<span class="n">meanSqErr</span> <span class="o">=</span> <span class="n">metrics</span><span class="p">.</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_pkmn_mlr</span><span class="p">)</span>
+<span class="n">rootMeanSqErr</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">metrics</span><span class="p">.</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_pkmn_mlr</span><span class="p">))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">'R squared: {:.2f}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">pkmn_mlr</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Mean Absolute Error:'</span><span class="p">,</span> <span class="n">meanAbErr</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Mean Square Error:'</span><span class="p">,</span> <span class="n">meanSqErr</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Root Mean Square Error:'</span><span class="p">,</span> <span class="n">rootMeanSqErr</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">R</span> <span class="n">squared</span><span class="p">:</span> <span class="mf">35.94</span>
+    <span class="n">Mean</span> <span class="n">Absolute</span> <span class="n">Error</span><span class="p">:</span> <span class="mf">83.04854368932038</span>
+    <span class="n">Mean</span> <span class="n">Square</span> <span class="n">Error</span><span class="p">:</span> <span class="mf">9344.140776699029</span>
+    <span class="n">Root</span> <span class="n">Mean</span> <span class="n">Square</span> <span class="n">Error</span><span class="p">:</span> <span class="mf">96.66509595867078</span>
+</code></pre></div></div>
+
+<p>While the multiple regression linear model technically works, the results are unfortunately statistically insignificant, meaning there is either low correlation between variables or the model itself is not the ‘best’. This is not surprising though, as Pokémon and their stats are incredibly diverse, so a clear relation between types would make both general and competitive play unbalanced.</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">annasanders.github.io</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">annasanders.github.io</li><li><a class="u-email" href="mailto:axsanders6@gmail.com">axsanders6@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/annasanders"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">annasanders</span></a></li><li><a href="https://www.linkedin.com/in/anna-sanders-6610aa162"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">anna-sanders-6610aa162</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>A place to display my coding projects.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

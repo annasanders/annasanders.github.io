@@ -177,10 +177,11 @@ cm = confusion_matrix(y_test, y_pred)
 print(cm)
 ```
 
+```python
     Accuracy for Predicting Democratic v. Republican States: 62.5 %
     [[7 0]
      [6 3]]
-    
+```    
 
 
 ```python
@@ -202,10 +203,11 @@ cm = confusion_matrix(y_test, y_pred)
 print(cm)
 ```
 
+```python
     Accuracy for Predicting Democratic v. Republican States: 62.5 %
     [[7 0]
      [6 3]]
-    
+```    
 
 
 ```python
@@ -227,10 +229,11 @@ cm = confusion_matrix(y_test, y_pred)
 print(cm)
 ```
 
+```python
     Accuracy for Predicting Democratic v. Republican States: 50.0 %
     [[7 0]
      [8 1]]
-    
+```   
 
 
 ```python
@@ -253,10 +256,11 @@ cm = confusion_matrix(y_test, y_pred)
 print(cm)
 ```
 
+```python
     Accuracy for Predicting Democratic v. Republican States: 43.75 %
     [[7 0]
      [9 0]]
-    
+```   
 
 The Bernoulli Naive Bayes (after standardizing the data), was the most accurate model, at 87.5%. Additionally, the model only returned false negatives (e.g. failed to classify a state as Democrat).
 

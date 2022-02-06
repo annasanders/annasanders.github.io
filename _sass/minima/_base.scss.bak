@@ -156,7 +156,6 @@ code {
 
 code {
   padding: 1px 0px;
-  text-color: #2A333C;
 }
 
 pre {

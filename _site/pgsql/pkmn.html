@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<link href="/css/pygments.css" rel="stylesheet"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>PostgreSQL and Querying Pokémon | annasanders.github.io</title>
+<meta name="generator" content="Jekyll v4.2.1" />
+<meta property="og:title" content="PostgreSQL and Querying Pokémon" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A place to display my coding projects." />
+<meta property="og:description" content="A place to display my coding projects." />
+<link rel="canonical" href="http://localhost:4000/pgsql/pkmn" />
+<meta property="og:url" content="http://localhost:4000/pgsql/pkmn" />
+<meta property="og:site_name" content="annasanders.github.io" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="PostgreSQL and Querying Pokémon" />
+<script type="application/ld+json">
+{"headline":"PostgreSQL and Querying Pokémon","url":"http://localhost:4000/pgsql/pkmn","@type":"WebPage","description":"A place to display my coding projects.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="annasanders.github.io" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">annasanders.github.io</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/r">🦏 R Projects</a><a class="page-link" href="/python">🐍 Python Projects</a><a class="page-link" href="/other">🦦 Other Projects</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">PostgreSQL and Querying Pokémon</h1>
+  </header>
+
+  <div class="post-content">
+    <h2 id="install-lessons-learned">Install (Lessons Learned)</h2>
+<p>I installed PostgreSQL directly from the website <a href="https://www.postgresql.org">here</a>. I also immediately downloaded the corresponding documentation from <a href="https://www.postgresql.org/docs/">here</a>. After installing in my local ‘C:\Program Files’ folder, I ran into an odd issue where I could not log into the default user in psql, which also happened to not be the postgre default user. After opening pgAdmin4 and reading the logs found in data/logs/, the solution was to add both a Database and Login/Group Role with the same name as the user defaulting in. This allowed me to finally ‘log in’ to psql.</p>
+
+<p>Overall, I found the overall query writing experience to be better using pgAdmin directly, than trying to write in psql command line. I have used MS SQL in the past, so the Query Tool within pgAdmin was very familiar. It is also useful see the tables and views directly in your database.</p>
+
+<h2 id="using-window-function-to-find-pokémon-first-type-ranking-based-on-total-base-points">Using Window Function to Find Pokémon First Type Ranking Based on Total Base Points</h2>
+<p>In order to accommodate multiple typing, I decided to do do two average window functions over the two types and then average the two results. Although a perfect measurement, averaging the total_points of the two types and then taking the average of that number still gives insight into how powerful a Pokémon is comparatively to other Pokémon with the same type 1 and type 2 typing. The results were then sorted by the first Pokémon type.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">WITH</span> <span class="n">pkmn_win</span> <span class="k">as</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">pokedex_number</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">type_1</span><span class="p">,</span> <span class="n">type_2</span><span class="p">,</span> <span class="n">total_points</span><span class="p">,</span>
+<span class="k">AVG</span><span class="p">(</span><span class="n">total_points</span><span class="p">)</span> <span class="n">OVER</span><span class="p">(</span><span class="k">PARTITION</span> <span class="k">BY</span> <span class="n">type_1</span><span class="p">)</span> <span class="k">as</span> <span class="n">avg_type1</span><span class="p">,</span>
+<span class="k">AVG</span><span class="p">(</span><span class="n">total_points</span><span class="p">)</span> <span class="n">OVER</span><span class="p">(</span><span class="k">PARTITION</span> <span class="k">BY</span> <span class="n">type_2</span><span class="p">)</span> <span class="k">as</span> <span class="n">avg_type2</span><span class="p">,</span>
+<span class="n">rank</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="k">PARTITION</span> <span class="k">BY</span> <span class="n">type_1</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">total_points</span> <span class="k">DESC</span><span class="p">)</span> <span class="n">type_rnk</span>
+<span class="k">FROM</span> <span class="n">pkmn</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">pokedex_number</span><span class="p">)</span>
+
+<span class="k">SELECT</span> 
+<span class="n">pokedex_number</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">type_1</span><span class="p">,</span> <span class="n">type_2</span><span class="p">,</span> <span class="n">total_points</span><span class="p">,</span>
+<span class="p">(</span><span class="n">avg_type1</span> <span class="o">+</span> <span class="n">avg_type2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="k">as</span> <span class="n">avg_avg</span><span class="p">,</span>
+<span class="n">rank</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="k">PARTITION</span> <span class="k">BY</span> <span class="p">((</span><span class="n">avg_type1</span> <span class="o">+</span> <span class="n">avg_type2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">total_points</span> <span class="k">DESC</span><span class="p">)</span> <span class="n">avg_rnk</span>
+<span class="k">FROM</span> <span class="n">pkmn_win</span>
+</code></pre></div></div>
+
+<p><strong>Top 15 Results:</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>pd_number</th>
+      <th>name</th>
+      <th>type_1</th>
+      <th>type_2</th>
+      <th>total_points</th>
+      <th>avg_avg</th>
+      <th>avg_rnk</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>15</td>
+      <td>Mega Beedrill</td>
+      <td>Bug</td>
+      <td>Poison</td>
+      <td>495</td>
+      <td>393.8481156595191683</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>545</td>
+      <td>Scolipede</td>
+      <td>Bug</td>
+      <td>Poison</td>
+      <td>485</td>
+      <td>393.8481156595191683</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>49</td>
+      <td>Venomoth</td>
+      <td>Bug</td>
+      <td>Poison</td>
+      <td>450</td>
+      <td>393.8481156595191683</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>168</td>
+      <td>Ariados</td>
+      <td>Bug</td>
+      <td>Poison</td>
+      <td>400</td>
+      <td>393.8481156595191683</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>15</td>
+      <td>Beedrill</td>
+      <td>Bug</td>
+      <td>Poison</td>
+      <td>395</td>
+      <td>393.8481156595191683</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>269</td>
+      <td>Dustox</td>
+      <td>Bug</td>
+      <td>Poison</td>
+      <td>385</td>
+      <td>393.8481156595191683</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>544</td>
+      <td>Whirlipede</td>
+      <td>Bug</td>
+      <td>Poison</td>
+      <td>360</td>
+      <td>393.8481156595191683</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>48</td>
+      <td>Venonat</td>
+      <td>Bug</td>
+      <td>Poison</td>
+      <td>305</td>
+      <td>393.8481156595191683</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>543</td>
+      <td>Venipede</td>
+      <td>Bug</td>
+      <td>Poison</td>
+      <td>260</td>
+      <td>393.8481156595191683</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>167</td>
+      <td>Spinarak</td>
+      <td>Bug</td>
+      <td>Poison</td>
+      <td>250</td>
+      <td>393.8481156595191683</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>Kakuna</td>
+      <td>Bug</td>
+      <td>Poison</td>
+      <td>205</td>
+      <td>393.8481156595191683</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td>Weedle</td>
+      <td>Bug</td>
+      <td>Poison</td>
+      <td>195</td>
+      <td>393.8481156595191683</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <td>127</td>
+      <td>Pinsir</td>
+      <td>Bug</td>
+      <td>None</td>
+      <td>500</td>
+      <td>397.6944444444444445</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>617</td>
+      <td>Accelgor</td>
+      <td>Bug</td>
+      <td>None</td>
+      <td>495</td>
+      <td>397.6944444444444445</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>314</td>
+      <td>Illumise</td>
+      <td>Bug</td>
+      <td>None</td>
+      <td>430</td>
+      <td>397.6944444444444445</td>
+      <td>3</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="finding-total-count-of-pokémon-with-a-unique-type-combination">Finding Total Count of Pokémon with a Unique Type Combination</h2>
+<p>There are 18 Pokémon types; however, the second typing (type 2) can technically have 19 unique value, due to no secondary typing requirements. For this reason, types were concatenated in their ‘forward’ position (type 1, type 2) and their ‘backwards’ position (type 2, type 1), and then counted in separate CTEs. The results were joined on the backwards concatenation to ensure all type combinations were present. The separate count columns were then summed to get the overall count.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">bkwd</span> <span class="k">as</span> <span class="p">(</span>
+<span class="k">select</span>
+<span class="k">count</span><span class="p">(</span><span class="n">pokedex_number</span><span class="p">)</span> <span class="n">count_bkw</span><span class="p">,</span>
+<span class="n">concat</span><span class="p">(</span><span class="n">type_2</span><span class="p">,</span><span class="s1">','</span><span class="p">,</span><span class="n">type_1</span><span class="p">)</span> <span class="k">as</span> <span class="n">bkw</span>
+<span class="k">from</span> <span class="n">pkmn</span>
+<span class="k">group</span> <span class="k">by</span> <span class="n">bkw</span>
+<span class="p">),</span>
+
+<span class="n">fwrd</span> <span class="k">as</span> <span class="p">(</span><span class="k">select</span> 
+<span class="k">count</span><span class="p">(</span><span class="n">pokedex_number</span><span class="p">)</span> <span class="n">count_fwd</span><span class="p">,</span>
+<span class="n">concat</span><span class="p">(</span><span class="n">type_1</span><span class="p">,</span><span class="s1">','</span><span class="p">,</span><span class="n">type_2</span><span class="p">)</span> <span class="k">as</span> <span class="n">fwd</span>
+<span class="k">from</span> <span class="n">pkmn</span> 
+<span class="k">group</span> <span class="k">by</span> <span class="n">fwd</span>
+<span class="p">)</span>
+
+<span class="k">select</span> 
+<span class="n">bkwd</span><span class="p">.</span><span class="n">bkw</span> <span class="k">as</span> <span class="n">grp</span><span class="p">,</span>
+<span class="n">bkwd</span><span class="p">.</span><span class="n">count_bkw</span> <span class="k">as</span> <span class="n">count_bkw</span><span class="p">,</span>
+<span class="p">(</span><span class="k">case</span> <span class="k">when</span><span class="p">(</span><span class="n">fwrd</span><span class="p">.</span><span class="n">count_fwd</span> <span class="k">is</span> <span class="k">null</span><span class="p">)</span> <span class="k">then</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">fwrd</span><span class="p">.</span><span class="n">count_fwd</span> <span class="k">end</span><span class="p">)</span> <span class="k">as</span> <span class="n">count_fwd</span><span class="p">,</span>
+<span class="p">(</span><span class="n">bkwd</span><span class="p">.</span><span class="n">count_bkw</span> <span class="o">+</span> <span class="p">(</span><span class="k">case</span> <span class="k">when</span><span class="p">(</span><span class="n">fwrd</span><span class="p">.</span><span class="n">count_fwd</span> <span class="k">is</span> <span class="k">null</span><span class="p">)</span> <span class="k">then</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">fwrd</span><span class="p">.</span><span class="n">count_fwd</span> <span class="k">end</span><span class="p">))</span> <span class="k">as</span> <span class="n">ttl</span>
+<span class="k">from</span> <span class="n">bkwd</span> 
+<span class="k">left</span> <span class="k">outer</span> <span class="k">join</span> <span class="n">fwrd</span> <span class="k">on</span> <span class="n">fwrd</span><span class="p">.</span><span class="n">fwd</span> <span class="o">=</span> <span class="n">bkwd</span><span class="p">.</span><span class="n">bkw</span> 
+<span class="k">order</span> <span class="k">by</span> <span class="n">ttl</span> <span class="k">desc</span>
+</code></pre></div></div>
+
+<p><strong>Top 15 Results:</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>grp</th>
+      <th>count_bkw</th>
+      <th>count_fwd</th>
+      <th>ttl</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>None,Water</td>
+      <td>72</td>
+      <td>0</td>
+      <td>72</td>
+    </tr>
+    <tr>
+      <td>None,Normal</td>
+      <td>71</td>
+      <td>0</td>
+      <td>71</td>
+    </tr>
+    <tr>
+      <td>None,Psychic</td>
+      <td>44</td>
+      <td>0</td>
+      <td>44</td>
+    </tr>
+    <tr>
+      <td>None,Grass</td>
+      <td>43</td>
+      <td>0</td>
+      <td>43</td>
+    </tr>
+    <tr>
+      <td>None,Fire</td>
+      <td>34</td>
+      <td>0</td>
+      <td>34</td>
+    </tr>
+    <tr>
+      <td>None,Electric</td>
+      <td>33</td>
+      <td>0</td>
+      <td>33</td>
+    </tr>
+    <tr>
+      <td>None,Fighting</td>
+      <td>28</td>
+      <td>0</td>
+      <td>28</td>
+    </tr>
+    <tr>
+      <td>Flying,Normal</td>
+      <td>27</td>
+      <td>0</td>
+      <td>27</td>
+    </tr>
+    <tr>
+      <td>None,Bug</td>
+      <td>19</td>
+      <td>0</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <td>None,Ice</td>
+      <td>19</td>
+      <td>0</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <td>None,Fairy</td>
+      <td>19</td>
+      <td>0</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <td>None,Ground</td>
+      <td>17</td>
+      <td>0</td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <td>None,Rock</td>
+      <td>16</td>
+      <td>0</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>None,Poison</td>
+      <td>16</td>
+      <td>0</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Poison,Grass</td>
+      <td>15</td>
+      <td>0</td>
+      <td>15</td>
+    </tr>
+    <tr>
+      <td>Flying,Bug</td>
+      <td>14</td>
+      <td>0</td>
+      <td>14</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="returning-list-of-pokémon-with-a-unique-type-combination">Returning List of Pokémon with a Unique Type Combination</h3>
+<p>To select the Pokémon with the most common typing, the previous query was put into another CTE and filtered in a WHERE clause against the complete data.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">bkwd</span> <span class="k">as</span> <span class="p">(</span>
+<span class="k">select</span>
+<span class="k">count</span><span class="p">(</span><span class="n">pokedex_number</span><span class="p">)</span> <span class="n">count_bkw</span><span class="p">,</span>
+<span class="n">concat</span><span class="p">(</span><span class="n">type_2</span><span class="p">,</span><span class="s1">','</span><span class="p">,</span><span class="n">type_1</span><span class="p">)</span> <span class="k">as</span> <span class="n">bkw</span>
+<span class="k">from</span> <span class="n">pkmn</span>
+<span class="k">group</span> <span class="k">by</span> <span class="n">bkw</span>
+<span class="p">),</span>
+
+<span class="n">fwrd</span> <span class="k">as</span> <span class="p">(</span><span class="k">select</span> 
+<span class="k">count</span><span class="p">(</span><span class="n">pokedex_number</span><span class="p">)</span> <span class="n">count_fwd</span><span class="p">,</span>
+<span class="n">concat</span><span class="p">(</span><span class="n">type_1</span><span class="p">,</span><span class="s1">','</span><span class="p">,</span><span class="n">type_2</span><span class="p">)</span> <span class="k">as</span> <span class="n">fwd</span>
+<span class="k">from</span> <span class="n">pkmn</span> 
+<span class="k">group</span> <span class="k">by</span> <span class="n">fwd</span>
+<span class="p">),</span>
+
+<span class="n">rnk</span> <span class="k">as</span> <span class="p">(</span><span class="k">select</span>
+<span class="n">bkwd</span><span class="p">.</span><span class="n">bkw</span> <span class="k">as</span> <span class="n">grp</span><span class="p">,</span>
+<span class="n">bkwd</span><span class="p">.</span><span class="n">count_bkw</span> <span class="k">as</span> <span class="n">count_bkw</span><span class="p">,</span>
+<span class="n">fwrd</span><span class="p">.</span><span class="n">count_fwd</span> <span class="k">as</span> <span class="n">count_fwd</span><span class="p">,</span>
+<span class="p">(</span><span class="n">bkwd</span><span class="p">.</span><span class="n">count_bkw</span> <span class="o">+</span> <span class="p">(</span><span class="k">case</span> <span class="k">when</span><span class="p">(</span><span class="n">fwrd</span><span class="p">.</span><span class="n">count_fwd</span> <span class="k">is</span> <span class="k">null</span><span class="p">)</span> <span class="k">then</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">fwrd</span><span class="p">.</span><span class="n">count_fwd</span> <span class="k">end</span><span class="p">))</span> <span class="k">as</span> <span class="n">ttl</span><span class="p">,</span>
+<span class="n">rank</span> <span class="p">()</span> <span class="n">OVER</span><span class="p">(</span><span class="k">order</span> <span class="k">by</span> <span class="p">(</span><span class="n">bkwd</span><span class="p">.</span><span class="n">count_bkw</span> <span class="o">+</span> <span class="p">(</span><span class="k">case</span> <span class="k">when</span><span class="p">(</span><span class="n">fwrd</span><span class="p">.</span><span class="n">count_fwd</span> <span class="k">is</span> <span class="k">null</span><span class="p">)</span> <span class="k">then</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">fwrd</span><span class="p">.</span><span class="n">count_fwd</span> <span class="k">end</span><span class="p">))</span> <span class="k">desc</span><span class="p">)</span> <span class="k">as</span> <span class="n">rnk</span>
+<span class="k">from</span> <span class="n">bkwd</span> 
+<span class="k">left</span> <span class="k">outer</span> <span class="k">join</span> <span class="n">fwrd</span> <span class="k">on</span> <span class="n">fwrd</span><span class="p">.</span><span class="n">fwd</span> <span class="o">=</span> <span class="n">bkwd</span><span class="p">.</span><span class="n">bkw</span> 
+<span class="k">order</span> <span class="k">by</span> <span class="n">ttl</span> <span class="k">desc</span><span class="p">)</span>
+
+<span class="k">select</span> <span class="o">*</span><span class="p">,</span>
+<span class="n">rank</span> <span class="p">()</span> <span class="n">OVER</span><span class="p">(</span><span class="k">ORDER</span> <span class="k">BY</span> <span class="n">total_points</span> <span class="k">desc</span><span class="p">)</span> <span class="n">type1_rank</span>
+<span class="k">from</span> <span class="n">pkmn</span> 
+<span class="k">where</span> <span class="n">concat</span><span class="p">(</span><span class="n">type_2</span><span class="p">,</span><span class="s1">','</span><span class="p">,</span><span class="n">type_1</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="k">select</span> <span class="n">rnk</span><span class="p">.</span><span class="n">grp</span> <span class="k">from</span> <span class="n">rnk</span> <span class="k">where</span> <span class="n">rnk</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><strong>Top 15 Results:</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>pokedex_number</th>
+      <th>name</th>
+      <th>type_1</th>
+      <th>type_2</th>
+      <th>total_points</th>
+      <th>type1_rank</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>382</td>
+      <td>Primal Kyogre</td>
+      <td>Water</td>
+      <td>None</td>
+      <td>770</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>382</td>
+      <td>Kyogre</td>
+      <td>Water</td>
+      <td>None</td>
+      <td>670</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>Mega Blastoise</td>
+      <td>Water</td>
+      <td>None</td>
+      <td>630</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>746</td>
+      <td>Wishiwashi School Form</td>
+      <td>Water</td>
+      <td>None</td>
+      <td>620</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>490</td>
+      <td>Manaphy</td>
+      <td>Water</td>
+      <td>None</td>
+      <td>600</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>245</td>
+      <td>Suicune</td>
+      <td>Water</td>
+      <td>None</td>
+      <td>580</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>350</td>
+      <td>Milotic</td>
+      <td>Water</td>
+      <td>None</td>
+      <td>540</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>818</td>
+      <td>Inteleon</td>
+      <td>Water</td>
+      <td>None</td>
+      <td>530</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>160</td>
+      <td>Feraligatr</td>
+      <td>Water</td>
+      <td>None</td>
+      <td>530</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>Blastoise</td>
+      <td>Water</td>
+      <td>None</td>
+      <td>530</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>503</td>
+      <td>Samurott</td>
+      <td>Water</td>
+      <td>None</td>
+      <td>528</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <td>134</td>
+      <td>Vaporeon</td>
+      <td>Water</td>
+      <td>None</td>
+      <td>525</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <td>693</td>
+      <td>Clawitzer</td>
+      <td>Water</td>
+      <td>None</td>
+      <td>500</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <td>55</td>
+      <td>Golduck</td>
+      <td>Water</td>
+      <td>None</td>
+      <td>500</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <td>321</td>
+      <td>Wailord</td>
+      <td>Water</td>
+      <td>None</td>
+      <td>500</td>
+      <td>13</td>
+    </tr>
+  </tbody>
+</table>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">annasanders.github.io</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">annasanders.github.io</li><li><a class="u-email" href="mailto:axsanders6@gmail.com">axsanders6@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/annasanders"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">annasanders</span></a></li><li><a href="https://www.linkedin.com/in/anna-sanders-6610aa162"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">anna-sanders-6610aa162</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>A place to display my coding projects.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

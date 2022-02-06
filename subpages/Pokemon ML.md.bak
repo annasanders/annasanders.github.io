@@ -387,6 +387,11 @@ list(zip(x, pkmn_mlr.coef_))
 ```python
     Intercept:  4143338107306098.5
     Coefficients:
+    
+
+
+
+
     [('Type_1_Bug', -3807471977839108.0),
      ('Type_1_Dark', -3807471977839072.5),
      ('Type_1_Dragon', -3807471977839015.0),
