@@ -15,5 +15,5 @@ Data analysis and multi-variate linear regression using Python (pandas, numpy, s
 ### [Classifying and Clustering States Using Living Wage]({{ site.url }}/python/living_wage)
 Machine Learning exploratory analysis for classification and clustering of State and wage data. This project was intended to start learning about and using various machine learning functions in python, as well as to continually learn about python for data science. Dataset adapted from [here](https://www.kaggle.com/brandonconrady/living-wage-50-states).
 
-### [🐕 Dog Web Scraper]({{ site.url }}/python/doggos)
-Smaller scale web scraper for dogs adoption profiles found on [a local rescue site](https://fetchwi.org/adopt). This project was intended for learn about how to build a web scraper in python, as well as exploring ways to store the data. I also am personally looking for a dog to adopt that would fit well with my lifestyle.
+### [🐕 Dog Web Scraper]({{ site.url }}/python/doggos) [+ Another Scraper For Specific Dog Info]({{ site.url }}/python/doggos_v2)
+Smaller scale web scraper for dogs adoption profiles found on [a local rescue site](https://fetchwi.org/adopt). This project was intended for learn about how to build a web scraper in python, as well as exploring ways to store the data. I also am personally looking for a dog to adopt that would fit well with my lifestyle. '''Update:''' a new iterative web scraper that scrapes specific dog websites found in the previous scraper.
