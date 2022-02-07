@@ -5,4 +5,4 @@ permalink: /about_me/resume
 ---
 ![]({{ site.url }}/files/Fancy Resume.png)
 
-[LaText Version]({{ site.url }}/files/Anna.Sanders.Resume.pdf)
+[LaTex Version]({{ site.url }}/files/Anna.Sanders.Resume.pdf)
