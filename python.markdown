@@ -6,6 +6,9 @@ permalink: /python
 
 I mainly use python through Anaconda using Jupyter Notebooks. Currently learning: scikit-learn and seaborn.
 
+### [Python Quick Reference Guide]({{ site.url }}/python/python_guide)
+A quick reference guide for people familiar with SQL and other data analysis/science tools, but not as familiar with python. Useful as a searchable and indexed guide when you forget the exact function or how to call it 😖. 
+
 ### [Netflix Project]({{ site.url }}/python/netflix)
 Data analysis using pandas, numpy, matplotlib, plotly, scipy, and scikit-learn to do exploratory analysis within the python ecosystem. This project was intended to help learn python syntax and packages. In pdf format to display plotly plots. Dataset from [here](https://www.kaggle.com/syedmubarak/netflix-dataset-latest-2021).
 

@@ -26,4 +26,4 @@ I have a working R Shiny App based off of my favorite Video Game Series: Pokémo
 
 ## 🗺 Recent Website Updates: 
 
-New theme colors! Fixing some broken links. Some more smaller projects because my computer has a very loud industrial grade dehumidifier next to it 🥲
+New [Python Quick Reference Guide]({{ site.url }}/python/python_guide)!
