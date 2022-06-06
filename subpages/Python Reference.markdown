@@ -3,10 +3,6 @@ layout: page
 title: Python Quick Reference Guide
 permalink: /python/python_guide
 ---
-.color-properties {
-  color: white;
-  background-color: #2ecc71;
-}
 
 ## Purpose
 
