@@ -6,7 +6,7 @@ layout: home
 title: 🦕 Welcome to my Website!
 ---
 
-👋 Hi, I’m [Anna Sanders]({{ site.url }}/about_me)!
+👋 Hi, I’m [Anna Sanders!]({{ site.url }}/about_me)
 
 🌱 I’m interested further developing my skills Data Science, Analysis, and Visualization
 
@@ -20,10 +20,12 @@ title: 🦕 Welcome to my Website!
 
 ## 🐉 What I'm Currently Proud Of: 
 
-I have a working R Shiny App based off of my favorite Video Game Series: Pokémon. Find the link and code [here]({{ site.url }}/r/pkmn_dshbrd)!
+I have a working R Shiny App based off of my favorite Video Game Series: Pokémon. Find the link and code [here!]({{ site.url }}/r/pkmn_dshbrd)
 
 <br>
 
 ## 🗺 Recent Website Updates: 
 
-New [Python Quick Reference Guide]({{ site.url }}/python/python_guide)!
+New (In-Progress) [Python Quick Reference Guide!]({{ site.url }}/python/python_guide)
+
+Want to know how I created this Awesome Website? I've written a guide [here!]({{ site.url }}/about_website)

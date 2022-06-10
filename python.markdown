@@ -6,7 +6,7 @@ permalink: /python
 
 I mainly use python through Anaconda using Jupyter Notebooks. Currently learning: scikit-learn and seaborn.
 
-### [Python Quick Reference Guide]({{ site.url }}/python/python_guide)
+### [Python Quick Reference Guide - In Progress]({{ site.url }}/python/python_guide)
 A quick reference guide for people familiar with SQL and other data analysis/science tools, but not as familiar with python. Useful as a searchable and indexed guide when you forget the exact function or how to call it 😖. 
 
 ### [Netflix Project]({{ site.url }}/python/netflix)
