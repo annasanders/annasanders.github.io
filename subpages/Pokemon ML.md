@@ -5,7 +5,7 @@ permalink: /python/pkmn_corr
 ---
 ## Purpose
 
-To explore basic Machine Learning concepts (multiple regression) and python packages with data I already understand. I will specifically use Pokémon stats to explore potential correlations. I also tried to use loops where possible.
+To explore basic Machine Learning concepts (regression) and python packages with data I already understand. I will specifically use Pokémon stats to explore potential correlations. I also tried to use loops where possible.
 
 
 ```python
