@@ -250,5 +250,8 @@ Which is the HTML element:
 
 **Note:** you may need to do some extra website style fiddling to stop minima from forcing in its default syntax highlighting. 
 
+## Other Quick Tips
+Want tables in markdown, but don't want to make them yourself? Go [here](https://www.tablesgenerator.com/markdown_tables) for easy copy paste tables!
+
 ## Other Words of Advice
 Rome wasn't built in a day, so don't worry if your website isn't either! I'm constantly adding to my website too 🙃.

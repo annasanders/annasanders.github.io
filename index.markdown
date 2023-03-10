@@ -26,6 +26,6 @@ I have a working R Shiny App based off of my favorite Video Game Series: Pokémo
 
 ## 🗺 Recent Website Updates: 
 
-New (In-Progress) [Python Quick Reference Guide!]({{ site.url }}/python/python_guide)
+I will hopefully starting a MS in Data Science soon! I'll be adding all projects to the site [here!]({{ site.url }}/ms_projects)
 
 Want to know how I created this Awesome Website? I've written a guide [here!]({{ site.url }}/about_website)
