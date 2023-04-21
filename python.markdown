@@ -20,3 +20,6 @@ Machine Learning exploratory analysis for classification and clustering of State
 
 ### [🐕 Dog Web Scraper]({{ site.url }}/python/doggos) [+ Another Scraper For Specific Dog Info]({{ site.url }}/python/doggos_v2)
 Smaller scale web scraper for dogs adoption profiles found on [a local rescue site](https://fetchwi.org/adopt). This project was intended for learn about how to build a web scraper in python, as well as exploring ways to store the data. I also am personally looking for a dog to adopt that would fit well with my lifestyle. '''Update:''' a new iterative web scraper that scrapes specific dog websites found in the previous scraper.
+
+### [🏠 Mortgage Calculator Code]({{ site.url }}/python/mortgage)
+Python project to show off my new-found skills with python classes. Would love to get the code into an actual app with a front-end, but am not sure how to do that just yet.
