@@ -158,7 +158,7 @@ from div_table c
 ```
 
 #### Pivot
-Pivot a table by a row and column to column and value respectively. Works in Athena SQL.
+Pivot a table by a row and column. Works in Athena SQL.
 
 ``` sql
 select

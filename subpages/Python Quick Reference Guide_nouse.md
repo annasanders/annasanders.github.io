@@ -1,10 +1,9 @@
 ---
 layout: page
 title: Python Quick Reference Guide
-permalink: /python/python_guide
+permalink:
 ---
-
-## Purpose
+# Python Cheat Sheet
 
 I'm putting together a list of helpful code snippets and links for using python for data analysis and data science. I'd like to think I'm not horrible at python, but I seem to keep googling the same documentation over and over.
 
