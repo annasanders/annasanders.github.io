@@ -230,7 +230,6 @@ In a perfect world, my preliminary evaluation will be a survey that is directly 
 However, as I am likely not able to collect that type of feedback on my personal project website, I have instead chosen to ask my friends and family for direct feedback on this iteration of the visualization. Some highlights include:
 - The color scales are visually appealing
 - The drop down menu was intuitive enough
-- Some of the graphs still look cluttered, especially the institution breakdown
-- Some degree options are sparse and may not need to be included
+- The 
 
 In future versions, I would like to further refine the filtering and display of the data. The individual Degree Program filter is fine, but I would like to have the overall list searchable and allow for multi-selection to look at multiple degree programs in aggregate. I would also like to find out why there doesn't seem to be data for 2011, which makes the overall visualization look unreliable as it is missing data.
