@@ -21,6 +21,7 @@ As the dataset is fairly large, I am choosing to focus just on Master's Degrees 
 - **Workflow:** A user will be able to select a field of study to update multiple graphs to show the relationship between Masters Degrees over time
 - **Roles:** The potentials roles are people who are interested in the change in Masters degrees awarded in Colorado over time, which could include those who work in higher education, prospective Masters degree students, and more
 
+## Final Project Sketch
 ![]({{site.url}}/ms_projects/dsta5304_mastersdeg/Final_Project_Sketch.png)
 
 ```python
