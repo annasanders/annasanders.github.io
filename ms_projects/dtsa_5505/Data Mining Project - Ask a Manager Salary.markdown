@@ -738,7 +738,8 @@ cluster_list
 ```
 
 
-
+<details>
+  <summary>Expand</summary>
 ```
     [array(['ADMIN ASSISTANT', 'ADMINISTRATIVE OFFICER',
             'ADULT AND TEEN LIBRARIAN', 'ANALOG ENGINEER',
@@ -1135,7 +1136,7 @@ cluster_list
             'STUDENT EMPLOYMENT SUPERVISOR', 'TECHNICAL WRITER',
             'WEB ACCESSIBILITY EVALUATOR'], dtype=object)]
 ```
-
+</details>
 
 While it did look to group fairly equally, some job titles don't really belong together. Luckily, there is another method built into scikit learn.
 
@@ -1199,7 +1200,8 @@ overlap
 
 cluster_list
 ```
-
+<details>
+  <summary>Expand</summary>
 ```
     [array(['ACADEMIC ADVISOR', 'ADJUNCT', 'ADJUNCT PROFESSOR',
             'ADMINISTRATOR', 'ARCHIVIST', 'ART AIDE', 'ASSOCIATE',
@@ -1598,6 +1600,7 @@ cluster_list
             'SYSTEMS ENGINEER', 'TEACHER/HEAD OF DEPARTMENT', 'TEST ENGINEER',
             'VP OF ENGINEERING', 'WEB DEVELOPER'], dtype=object)]
 ```
+</details>
 
 While still not perfect, these groups look better than the previous groupings.
 
@@ -1619,6 +1622,8 @@ for i in range(max(aam_cluster2['cluster3'])):
     exec("cluster_list.append(cluster_%d)" % (i))
 print(cluster_list)
 ```
+<details>
+  <summary>Expand</summary>
 ```
     [array(['ADMINISTRATIVE ASSISTANT', 'ADMINISTRATIVE ASSISTANT - ADVANCED',
            'ADMINISTRATIVE ASSISTANT 2', 'ADMINISTRATIVE ASSISTANT IV',
@@ -1985,6 +1990,7 @@ print(cluster_list)
            'RECRUITMENT & RETENTION SPECIALIST', 'SENIOR APPIAN DEVELOPER',
            'SENIOR DEVELOPMENT PROJECT MANAGER'], dtype=object)]
  ```   
+</details>
 
 Looking at the clusters, the K-Means does anecdotally look to cluster the job titles slightly better.
 
@@ -2007,6 +2013,8 @@ for i in range(max(aam_cluster2['cluster3'])):
 print(cluster_list)
 print('Unlabeled:', sum(op_model.labels_ == -1) / len(op_model.labels_)*100,'%')
 ```
+<details>
+  <summary>Expand</summary>
 ```
     [array(['ASSOCIATE VICE PRESIDENT', 'CRIME SCENE INVESTIGATOR',
            'CUSTOMER SERVICE SPECIALIST', 'HUMAN RESOURCES SPECIALIST',
@@ -2027,6 +2035,7 @@ print('Unlabeled:', sum(op_model.labels_ == -1) / len(op_model.labels_)*100,'%')
            'VIRTUAL CONTENT MANAGER'], dtype=object)]
     Unlabeled: 93.08176100628931 %
  ```   
+</details>
 
 As we can see, the percent unlabeled data is quite large.
 
