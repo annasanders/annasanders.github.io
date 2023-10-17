@@ -18,3 +18,8 @@ Project analyzing John Hopkins University global COVID data. The first part of t
 
 #### [Master's Degrees Awarded in Colorado]({{site.url}}/ms_projects/dsta5304_mastersdeg)
 Project visualizing Master's degrees awarded in the state of Colorado from 2001-2017. The visualization was built in Altair and is interactive, both via the bottom degree program filter and on each individual plot legend. This page includes an interactive visualization!
+
+### DTSA 5506 - Data Mining Project (🐍 Python)
+
+#### [Ask A Manager Salary Survey Data Pipeline Project]({{site.url}}/ms_projects/dsta5506_aamsurvey)
+Data mining pipeline project that goes through the cleaning and tidying of data, visualization and analysis, clustering, and prediction modeling. Major packages used include scapy, sci-kit learn, and plotly.
