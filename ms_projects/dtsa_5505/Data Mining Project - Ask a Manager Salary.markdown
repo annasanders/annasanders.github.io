@@ -1,14 +1,13 @@
 ---
 layout: page
-title: Data Mining Final Project - Ask A Manager Salary Survey
+title: Ask A Manager Survey Reported Salaries from 2022 and 2023
 permalink: /ms_projects/dsta5506_aamsurvey
 ---
-# Ask A Manager Survey Reported Salaries from 2022 and 2023
 
 - 2023 Data From: [Ask A Manager 2023 Survey Post](https://www.askamanager.org/2023/04/how-much-money-do-you-make-6.html)
 - 2022 Data From: [Ask A Manager 2022 Survey Post](https://www.askamanager.org/2022/04/how-much-money-do-you-make-5.html)
 
-### Table of Contents
+#### Table of Contents
 - [Project Overview](#project-overview)
     - [Project Goals](#project-goals)
     - [Setup](#setup)
@@ -19,20 +18,20 @@ permalink: /ms_projects/dsta5506_aamsurvey
     - [K-Means with Computed Vectors](#k-means-with-computed-vectors)
     - [Full Clustering](#full-clustering)
     - [Exploring Clusters](#exploring-clusters)
-- [Data Exporation and Analysis](#data-exploration-and-analysis)
+- [Data Exploration and Analysis](#data-exploration-and-analysis)
     - [All Data](#all-data)
     - [USD Only](#usd-only)
     - [2023 USD](#2023-usd)
 - [Predicting Salary](#predicting-salary)
     - [Modeling](#modeling)
-    - [Moddeling Without Job Title Cluster](#modeling-without-job-title-cluster)
+    - [Modeling Without Job Title Cluster](#modeling-without-job-title-cluster)
     - [Predicting](#predicting)
 - [Final Thoughts and Project Next Steps](#final-thoughts-and-project-next-steps)
 
-# Project Overview
+## Project Overview
 
 
-### Project Goals
+#### Project Goals
 The overall project goals mainly deal with going through the entire data mining workflow, from data collection to modeling and iterating based on results. The only parts of the data mining workflow that will not be covered is the data warehousing (current warehousing, if applicable, will be in csvs), and initial data collection (surveying).
 
 The project should clearly walk through the data cleaning and combining process, as well as any feature engineering necessary for analysis or modeling. The project should also attempt to utilize supervised and unsupervised machine learning models to enrich the data and analysis.
@@ -52,9 +51,7 @@ The project should clearly walk through the data cleaning and combining process,
 
 [Presentation Slides]()
 
-[Write Up]()
-
-## Setup
+### Setup
 
 
 ```python
@@ -93,6 +90,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import plotly as pl
 import plotly.express as px
+import plotly.graph_objects as go
 
 # Language Processing
 import spacy
@@ -109,7 +107,7 @@ from sklearn.feature_extraction import FeatureHasher
 from sklearn.model_selection import train_test_split
 ```
 
-## Load and Clean Data
+### Load and Clean Data
 
 In order to clean the data, the following steps were taken:
 - Load Data
@@ -336,7 +334,7 @@ print('Columns:', len(aam.columns))
     Columns: 26
  ```   
 
-## Analysis of Basic Data Attributes
+### Analysis of Basic Data Attributes
 
 Looking at some of the most basic statistics on the number of unique responses in each category and the overall maximum and minimum of the two numeric responses, there are not many surprises, especially when taking into account that responses can be reported in various currencies. 
 
@@ -465,7 +463,7 @@ print('Functional Areas:',len(np.unique(aam['functional_area'])))
     Functional Areas: 76
  ```   
 
-# Vectorizing Job Titles
+## Vectorizing Job Titles
 
 In the survey, job title is a completely free text field. While this is great for being able to accurately represent a respondence's job title, this creates issues with grouping and classifying job types. For example, if one response reports their job title as Data Analysis and another respondent reports their job type as Business Analyst, while different jobs, they are functionally very similar; however, grouping just on text will not relate these two job titles.
 
@@ -657,11 +655,11 @@ print("0.001 Similarity:", np.unique(aam[(aam['combined_title_vector'] <= search
 
 While the above shows good results, we cannot use the vectors themselves, as they are numeric, and thus in a model would indicate ordinality.
 
-# Clustering to Proxy Job Title
+## Clustering to Proxy Job Title
 
 In order to reduce the number of unique job titles, we will attempt to 'cluster' the data based on some relevant job (columns). The above example showed how the text vectorization, while a good start, was not completely accurate. Adding education, total gross salary, and other important dimensions should help cluster job titles better than going just by title.
 
-## K-Means with Computed Vectors
+### K-Means with Computed Vectors
 
 We will start by using K-Means to cluster an aggregated version of the dataset with the above vectors.
 
@@ -691,7 +689,7 @@ first_pipeline = Pipeline(
 )
 ```
 
-### K-Means First Test
+#### K-Means First Test
 
 Clustering, especially on this much data and creating 2,500 clusters takes a bit to run. In order to test and validate results without running the algorithm on the full dataset, we will take a subset (1,000 rows to 20 clusters) and observe the results.
 
@@ -1140,7 +1138,7 @@ cluster_list
 
 While it did look to group fairly equally, some job titles don't really belong together. Luckily, there is another method built into scikit learn.
 
-### K-Means Second Test
+#### K-Means Second Test
 
 In the sci-kit learn library, there are built in functions to process text. One string to vector transformer is the FeatureHasher, which can turn a string into a matrix with a set number of features. Below, the pipeline has been rebuilt using the FeatureHasher instead of the string vectors.
 
@@ -1604,7 +1602,7 @@ cluster_list
 
 While still not perfect, these groups look better than the previous groupings.
 
-### Birch Third Test
+#### Birch Third Test
 
 We can additionally use the Birch model to cluster the data.
 
@@ -1994,7 +1992,7 @@ print(cluster_list)
 
 Looking at the clusters, the K-Means does anecdotally look to cluster the job titles slightly better.
 
-### OPTICS Fourth Test
+#### OPTICS Fourth Test
 
 Instead of defining clusters by the total number of clusters the results should have, instead OPTICS uses the minimum number of samples in one cluster. Unfortunately, there is the possibility for the cluster to be undefined, or -1.
 
@@ -2039,7 +2037,7 @@ print('Unlabeled:', sum(op_model.labels_ == -1) / len(op_model.labels_)*100,'%')
 
 As we can see, the percent unlabeled data is quite large.
 
-## Full Clustering
+### Full Clustering
 
 We can now cluster with the full data. As there are 13,114 unique job titles, will try to create around 2,000 clusters in order to reduce the uniqueness by over 80%.
 
@@ -2124,7 +2122,7 @@ max(aam_cluster_final['cluster2'])
 ```
 
 
-## Exploring Clusters
+### Exploring Clusters
 
 Now that the above models have run, we can assess the clusters.
 
@@ -2143,7 +2141,7 @@ print('Missing Job Title Clusters:',len(aam[aam['cluster'].isna()]))
     Missing Job Title Clusters: 0
 ```   
 
-### K-Means Cluster Results
+#### K-Means Cluster Results
 
 Looking at the K-Means results, there are a small amount of clusters with only one memeber, which is not ideal, but better than using the job title column as is.
 
@@ -2157,7 +2155,7 @@ print("Clusters With Only 1 Member:", len(cluster_counts[cluster_counts['job_tit
     Clusters With Only 1 Member: 303
 ```    
 
-### OPTICS Cluster
+#### OPTICS Cluster
 
 Looking at the Optics Cluster, there are 1/3 the number of clusters compared to the K-Means cluster, but over 80% of the data is unlabeled, which is not ideal.
 
@@ -2176,7 +2174,7 @@ print("Unlabeled Rows:", len(aam_cluster2[aam_cluster2['cluster2'] == -1]) / len
     Unlabeled Rows: 82.21916971916971 %
 ```   
 
-### Exploring a Random Subset
+#### Exploring a Random Subset
 
 We can generate a random subset of 10 K-Means clusters to look at, and compare the first job title to what the OPTICS cluster classified it as.
 
@@ -2243,13 +2241,13 @@ for j in optics_list:
 
 The K-Means clusters look fairly similar, but still aren't grouping as well as they could be. The first result of each cluster seemed to be mostly undefined in the OPTICS cluster, which is unfortunate as the OPTICS Clusters, when found, do look better than the K-Means clusters. As such, we will continue with the complete, but imperfect K-Means cluster.
 
-# Data Exploration and Analysis
+## Data Exploration and Analysis
 
 There are a large number of questions that could be answered with this dataset. In each of the following sections, we will focus on plots and analysis on the most relevant features in each (data grouping/filtering) and will try not to overlap analysis unless specific cross comparisons are being done.
 
-## All Data
+### All Data
 
-### Responses by Country
+#### Responses by Country
 
 As we can see from the following plot, most responses are from the United States, with a smaller number of repsponses from Canada, the UK, and Germany.
 
@@ -2267,7 +2265,7 @@ fig.write_image("fig1.png")
 
 ![]({{site.url}}/ms_projects/dtsa_5505/fig1.png)
 
-### Responses by Currency
+#### Responses by Currency
 
 Breaking the responses down by currency, most responses are in USD, with CAD and GBP taking up a smaller portion of responses.
 
@@ -2286,7 +2284,7 @@ fig.write_image("fig2.png")
 
 ![]({{site.url}}/ms_projects/dtsa_5505/fig2.png)
 
-## USD Only
+### USD Only
 
 Adding currency conversion, especially for previous time periods (in this case 2022) is out of scope for this specific project. As such, for the remaining analysis and modeling, we will be focusing on only data reported in USD.
 
@@ -2295,7 +2293,7 @@ Adding currency conversion, especially for previous time periods (in this case 2
 aam_usd = aam[aam['currency'] == 'USD']
 ```
 
-### Breakdown by Industry
+#### Breakdown by Industry
 
 Unlike Country and Currency, Industry seems to be fairly evenly distributed, with higher responses from Higher Education and Computing/Tech.
 
@@ -2313,7 +2311,7 @@ fig.write_image("fig3.png")
 
 ![]({{site.url}}/ms_projects/dtsa_5505/fig3.png)
 
-### Breakdown by Functional Area
+#### Breakdown by Functional Area
 
 If we break down by Functional Area, Computing/Tech still has a higher response percent compariatively, but the second highest category (other than Other) is Accounting, Banking, and Finance.
 
@@ -2331,7 +2329,7 @@ fig.write_image("fig4.png")
 
 ![]({{site.url}}/ms_projects/dtsa_5505/fig4.png)
 
-### Total Salary in 2022 vs. 2023
+#### Total Salary in 2022 vs. 2023
 
 Looking at the distribution of Total Salary in 2022 vs. 2023 (capping at \$600,000 per year), both years look to have very similar distributions, but the median Total Salary for 2023 is slightly higher (\$85,000 vs. \$90,500).
 
@@ -2371,7 +2369,7 @@ print('Q1: $%.2f' %(df[df['year'] == 2023]['total_gross_salary'].quantile([0.25]
     Q1: $65000.00
 ```    
 
-### Industry Average Total Salary in 2022 vs. 2023
+#### Industry Average Total Salary in 2022 vs. 2023
 
 Looking at the individual Industries, for the most part, Average Total Salaries have increased from 2022 to 2023.
 
@@ -2388,7 +2386,7 @@ fig.write_html('fig6.html')
 
 HTML Figure Located Elsewhere
 
-### Functional Area Average Total Salary in 2022 vs. 2023
+#### Functional Area Average Total Salary in 2022 vs. 2023
 
 Looking at the individual Industries, for the most part, Average Total Salaries have increased from 2022 to 2023.
 
@@ -2405,9 +2403,9 @@ fig.write_html('fig7.html')
 
 HTML Figure Located Elsewhere
 
-### Statistical Tests for Difference in Total Salary
+#### Statistical Tests for Difference in Total Salary
 
-We can use the Student's t-test to test if the average salary in 2023 was significantly different than the average salary in 2022 for salaries reported in USD. We are able to use the independent sample assumption because the survey results came from two seperate surveys.
+We can use the Student's t-test to test if the average salary in 2023 was significantly different than the average salary in 2022 for salaries reported in USD. We are able to use the independent sample assumption because the survey results came from two separate surveys.
 
 
 ```python
@@ -2420,8 +2418,30 @@ fig.write_image("fig8.png")
 
 ![]({{site.url}}/ms_projects/dtsa_5505/fig8.png)
 
-From the above histogram, the distribution of Total Salaries is not exactly normal, especially when taking into account outliers over \$600,000 a year, but is mostly normal. We will conduct the test on salary under \$600,000 so that extremely high salaries do not skew the results.
+From the above histogram, the distribution of Total Salaries is log normal (non-negative), especially when taking into account outliers over \$600,000 a year. We will conduct the test on salary under \$600,000 so that extremely high salaries do not skew the results.
 
+```python
+# Log Normal Fit
+df = aam_usd[(aam_usd['total_gross_salary'] <= 600000)]
+s, loc, scale = stats.lognorm.fit(df['total_gross_salary'], floc=0)
+z_x = list(range(0,600000,100))
+
+z = stats.lognorm.pdf(z_x, s, scale=scale)
+
+plt.hist(df['total_gross_salary'], bins = 100, density=True, alpha=0.75)
+plt.plot(z_x, z)
+plt.savefig('fig16.png')
+```
+![]({{site.url}}/ms_projects/dtsa_5505/fig17.png)
+
+```python
+print('Scale:',scale)
+print('Shape',s)
+```
+```
+Scale: 90234.86852584557
+Shape 0.5873330514134909
+```
 
 ```python
 # Student's t-test
@@ -2468,7 +2488,7 @@ print('Median of Salaries from 2022: $%.2f' %(df[df['year'] == 2022]['total_gros
 
 Because the p-value is less than 0.05, we can reject the null hypothesis that the medians of salaries from 2022 are the same as the medians of salaries from 2023.
 
-## 2023 USD
+### 2023 USD
 
 The salary prediction will focus on salary prediction in USD for the current year of 2023. This section will focus on analyzing just the 2023 data reported in USD.
 
@@ -2477,10 +2497,7 @@ The salary prediction will focus on salary prediction in USD for the current yea
 aam_usd23 = aam_usd[aam_usd['year'] == 2023]
 ```
 
-### Breakdown by US State
-
-Not surprisingly, California and New York have the highest number of responses. This distribution mainly follows general state population trends.
-
+#### Breakdown by US State
 
 ```python
 df = aam_usd23[['form_timestamp','us_state']].groupby(['us_state'], as_index=False).count()
@@ -2495,10 +2512,10 @@ fig.write_image("fig9.png")
 
 ![]({{site.url}}/ms_projects/dtsa_5505/fig9.png)
 
-### Breakdown by City
 
-Not surprisingly, New York (city) has the highest number of responses, followed by Boston and Chicago, which are the other two large and dense metropolitan areas in the US.
+California and New York have the highest number of responses. This is unsurprising, as mainly California and New York are first and third on the [list of US states by population](https://en.wikipedia.org/wiki/List_of_U.S._states_and_territories_by_population). 
 
+#### Breakdown by City
 
 ```python
 df = aam_usd23
@@ -2515,7 +2532,9 @@ fig.write_image("fig10.png")
 
 ![]({{site.url}}/ms_projects/dtsa_5505/fig10.png)
 
-### Age Group and Total Salary
+New York (city) has the highest number of responses, followed by Boston and Chicago, which are the other two large and dense [metropolitan areas in the US](https://en.wikipedia.org/wiki/Metropolitan_statistical_area).
+
+#### Age Group and Total Salary
 
 Overall, age does seem to increase Total Salary, but only to an extent. Also, since the US retirement age is around 65, we see less outliers with the age group of 65 and older because many high earners would likely retire at or around 65.
 
@@ -2531,7 +2550,7 @@ fig.write_image("fig11.png")
 
 ![]({{site.url}}/ms_projects/dtsa_5505/fig11.png)
 
-### Work Experience and Total Salary
+#### Work Experience and Total Salary
 
 Looking at general work experience, increased work experience does contribute to higher Total Salaries, but like age, it also looks to only increase Total Salary to an extent.
 
@@ -2547,7 +2566,7 @@ fig.write_image("fig12.png")
 
 ![]({{site.url}}/ms_projects/dtsa_5505/fig12.png)
 
-### Field Experience and Total Salary
+#### Field Experience and Total Salary
 
 Compared to Total Experience, Field Experience looks to have a higher impact on salary but also seems to level out around 20-30 years of experience.
 
@@ -2563,7 +2582,7 @@ fig.write_image("fig13.png")
 
 ![]({{site.url}}/ms_projects/dtsa_5505/fig13.png)
 
-### Work Type and Total Salary
+#### Work Type and Total Salary
 
 Looking at work type, Fully Remote jobs seem to have a higher salary than onsite and hybrid/other positions.
 
@@ -2578,7 +2597,7 @@ fig.write_image("fig14.png")
 
 ![]({{site.url}}/ms_projects/dtsa_5505/fig14.png)
 
-### Mood's Median Test for Differences Between Work Types
+#### Mood's Median Test for Differences Between Work Types
 
 
 ```python
@@ -2610,7 +2629,7 @@ print('Median of Other Salaries: $%.2f' %(df[df['work_type'] == 'Other']['total_
 
 Because the p-value is less than 0.05, we can reject the null hypothesis that the medians of salaries by work type are all the same. This test does not tell us which work type's salaries comparatively are different to each other.
 
-### Gender and Total Salary
+#### Gender and Total Salary
 
 
 ```python
@@ -2629,7 +2648,7 @@ fig.write_image("fig15.png")
 
 Because the p-value is less than 0.05, we can reject the null hypothesis that the medians of salaries by gender are all the same. However, this may be caused by a different distribution of industries, functional areas, years of experience, or any number of factors outside of gender.
 
-### Mood's Median Test for Differences Between Genders
+#### Mood's Median Test for Differences Between Genders
 
 
 ```python
@@ -2649,7 +2668,7 @@ print('Median of Female Salaries: $%.2f' %(df[df['gender'] == 'Woman']['total_gr
     Median of Female Salaries: $89000.00
 ```   
 
-# Predicting Salary
+## Predicting Salary
 
 Because of outliers, we will only train the total salary (base salary + bonus) prediction on responses from 2023 in USD below \$600,000. While some jobs do make upwards of \$600,000, these positions are the minority and would most likely be CEOs, C-Suites in large companies, and business owners. 
 
@@ -2761,9 +2780,9 @@ X2_train, X2_test, y2_train, y2_test = train_test_split(X2_p,y2,test_size=0.3, r
     [Pipeline] ...... (step 1 of 1) Processing preprocessor, total=   0.0s
 ```    
 
-## Modeling
+### Modeling
 
-As this data has a lot of categorical and ordinal dimensions, we will train many different models and assess metrics like $R^{2}$, Explained Variance, Means Absolute Error, Mean Squared Error, and Mean Absolute Perecnt Error. We want to maximize the $R^{2}$ and Explained Variance value and minimize all other values.
+As this data has a lot of categorical and ordinal dimensions, we will train many different models and assess metrics like R^2, Explained Variance, Means Absolute Error, Mean Squared Error, and Mean Absolute Perecnt Error. We want to maximize the R^2 and Explained Variance value and minimize all other values.
 
 
 ```python
@@ -2950,11 +2969,153 @@ print('Mean Absolute Percent Error: %.2f' %(metrics.mean_absolute_percentage_err
     Mean Absolute Percent Error: 124.06 %
 ```   
 
-From the above results, the Random Forest Regressor and the Stochastic Gradient Descent (SGD) models perform the best. The SGD model has a higher $R^{2}$ and Explained Variance values, but also has higher error metrics compared to the Random Forest Regressor.
+From the above results, the Random Forest Regressor and the Stochastic Gradient Descent (SGD) models perform the best. The SGD model has a higher R^2 and Explained Variance values, but also has higher error metrics compared to the Random Forest Regressor.
 
 The models overall, however, are not well trained; there is still lots of room for model improvements outside of this project.
 
-## Modeling Without Job Title Cluster
+#### Predicted vs. Actuals
+
+We can investigate the poor fit of the models by plotting the fitted values vs. the actual salaries for the training data.
+
+```python
+# RFR Fitted vs. Predicted
+rfr_predict = rfr_salary.predict(X_test)
+line_x = list(range(0,600000,1000))
+line_y = list(range(0,600000,1000))
+
+d = {'rfr_predict':rfr_predict, 'y_test':y_test}
+df = pd.DataFrame(d)
+df['dif'] = df['rfr_predict'] - df['y_test']
+df['dif_cat'] = np.where(df['dif'] >= 0, '#EF553B','#636EFA')
+
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=df['rfr_predict'],y=df['y_test'], mode='markers', marker_color=df['dif_cat']))
+fig.add_trace(go.Scatter(x=line_x, y=line_y, marker_color='black'))
+fig.update_layout(title='RFR Fitted vs. Actuals')
+fig.update_xaxes(title_text="Predicted")
+fig.update_yaxes(title_text="Actual")
+fig.update_layout(showlegend=False)
+fig.update_layout(yaxis_range=[0,max(y_test)], xaxis_range=[0,max(rfr_predict)])
+# fig.show()
+fig.write_image('fig_19.png')
+```
+
+![]({{site.url}}/ms_projects/dtsa_5505/fig_19.png)
+
+```python
+df[['dif_cat2','dif']].groupby(['dif_cat2']).count()
+```
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dif</th>
+    </tr>
+    <tr>
+      <th>dif_cat2</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Above</th>
+      <td>1900</td>
+    </tr>
+    <tr>
+      <th>Below</th>
+      <td>2000</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+From the plot and table above, the Random Forest Regression model is under predicting more often than over-predicting. Looking at the graph, at lower actual values, the model tends to over-predict salary; however, at higher actual salaries, the model seems to under-predict. Similarly, the higher the actual salary the worse the prediction gets.
+
+```python
+# SGD Fitted vs. Predicted
+sgd_predict = sgd_salary.predict(X_test)
+line_x = list(range(0,600000,1000))
+line_y = list(range(0,600000,1000))
+
+d = {'sgd_predict':sgd_predict, 'y_test':y_test}
+df = pd.DataFrame(d)
+df['dif'] = df['sgd_predict'] - df['y_test']
+df['dif_cat'] = np.where(df['dif'] >= 0, '#EF553B','#636EFA')
+
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=df['sgd_predict'],y=df['y_test'], mode='markers', marker_color=df['dif_cat']))
+fig.add_trace(go.Scatter(x=line_x, y=line_y, marker_color='black'))
+fig.update_layout(title='SGD Fitted vs. Actuals')
+fig.update_xaxes(title_text="Predicted")
+fig.update_yaxes(title_text="Actual")
+fig.update_layout(showlegend=False)
+fig.update_layout(yaxis_range=[0,max(y_test)], xaxis_range=[0,max(sgd_predict)])
+# fig.show()
+fig.write_image('fig_20.png')
+```
+
+![]({{site.url}}/ms_projects/dtsa_5505/fig_20.png)
+
+```python
+df[['dif_cat2','dif']].groupby(['dif_cat2']).count()
+```
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dif</th>
+    </tr>
+    <tr>
+      <th>dif_cat2</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Above</th>
+      <td>1764</td>
+    </tr>
+    <tr>
+      <th>Below</th>
+      <td>2136</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+From the plot and table above, the Stochastic Gradient Descent (SGD) model is also under predicting more often than over-predicting. Looking at the graph, at lower actual values, the model tends to over-predict salary, even moreso than the Random Forest Regressor (RFR); however, at higher actual salaries, the model seems to under-predict. At higher salaries comparatively, the SGD model seems to fit around the line y=x (or the fitted values = actual values) much better than the RFR model.
+
+### Modeling Without Job Title Cluster
 
 We can now run the two selected models from above on the data that does not include the job cluster as an input to the model.
 
@@ -3006,7 +3167,7 @@ print('Mean Absolute Percent Error: %.2f' %(metrics.mean_absolute_percentage_err
 
 From the calculated metrics, both models performed worse without the job cluster, so while not perfect, the job cluster did help the model improve predictions for total salary.
 
-## Predicting 
+### Predicting 
 
 We can now create functions to predict salary based on various attributes.
 
@@ -3031,8 +3192,8 @@ X = aam_usd23_f.loc[:, ~aam_usd23_f.columns.isin(['total_gross_salary','combined
     'education','year','country','job_title','exp_field_group','education','job_title_vector'])]
 
 # Models
-# rfr_salary = pickle.load(open('rfr_salary.sav', 'rb'))
-# sgd_salary = pickle.load(open('sgd_salary.sav', 'rb'))
+rfr_salary = pickle.load(open('rfr_salary.sav', 'rb'))
+sgd_salary = pickle.load(open('sgd_salary.sav', 'rb'))
 
 # Helper Functions
 def job_title_to_cluster(job_text):
@@ -3130,7 +3291,7 @@ sgd_prediction = rfr_prediction = predict_salary(24, 3, 1, "College degree", 'TR
 
 The predictions above are fairly interesting. The above information is my responses to the 2023 survey. The first salary estimate is below what I currently make. The second estimate is way above what I make (but would love to make that much money one day). This overall seems in line with the metrics associated with the model predicted; RFR had lower residual metrics while SGD had better fit metrics.
 
-# Final Thoughts and Project Next Steps
+## Final Thoughts and Project Next Steps
 
 This project was definingly not perfect. At all stages in the process, decisions were made that had downstream implications on the analysis and modeling. A few next steps that loosen some of these decisions are:
 
