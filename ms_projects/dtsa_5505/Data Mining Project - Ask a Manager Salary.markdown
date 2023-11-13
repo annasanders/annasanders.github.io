@@ -47,9 +47,9 @@ The project should clearly walk through the data cleaning and combining process,
 - Develop Classification Algorithm for Job Title (free text response variable)
 - Develop Clustering Algorithm and Explore Similarities and Differences Between Cluster Members
 
-[Proposal]()
+[Formal Proposal Here!]({{site.url}}/ms_projects/dtsa_5505/Data_Mining_Project_Report_final.pdf)
 
-[Presentation Slides]()
+[Presentation Slides Here!]({{site.url}}/ms_projects/dtsa_5505/Data Mining Project Slides_final.pdf)
 
 ### Setup
 
