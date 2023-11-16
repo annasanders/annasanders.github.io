@@ -35,6 +35,7 @@ header_pages:
 - r.markdown
 - python.markdown
 - other.markdown
+- ms_projects.markdown
 
 # Markdown Settings
 markdown: kramdown
