@@ -1,12 +1,15 @@
 ---
 layout: page
-title: 📜 Masters in Data Science Projects
+title: 📜 MS-DS Projects
 permalink: /ms_projects
 ---
 
+## Masters in Data Science 
+**University of Colorado Boulder** &emsp;&emsp; Spring 2023 - Current
+
 Here is a repository of all projects completed for my MS-Data Science! Projects will be grouped by associated class.
 
-### DSTA 5301 - Introduction to Data Science (🦏 R Studio)
+### DSTA 5301 - Introduction to Data Science (🦏 R)
 
 #### [NYPD Shooting Data Analysis]({{site.url}}/ms_projects/dsta5301_shooting_analysis)
 Short project analyzing NYPD open access shooting data.

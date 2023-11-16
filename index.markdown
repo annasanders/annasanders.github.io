@@ -12,15 +12,19 @@ title: 🦕 Welcome to my Website!
 
 ✨ Fun fact: I enjoy using emojis 😁
 
+
+
 <br>
 
 <h2 style="text-align:center;"> 🐢🐢🐢 Be Kind! This Website is Always In Progress 🐢🐢🐢 </h2>
 
 <br>
 
-## 🐉 What I'm Currently Proud Of: 
+## ⏲️ Only Got a Few Minutes? 
 
-I have a working R Shiny App based off of my favorite Video Game Series: Pokémon. Find the link and code [here!]({{ site.url }}/r/pkmn_dshbrd)
+**Dashboard:** I have a working R Shiny App based off of my favorite Video Game Series: Pokémon. Find the link and code [here!]({{ site.url }}/r/pkmn_dshbrd)
+
+**ML Project (Supervised and Unsupervised):** Take a look at my final project for the Data Mining Project class [here!]({{ site.url }}/ms_projects/dsta5506_aamsurvey)
 
 <br>
 
