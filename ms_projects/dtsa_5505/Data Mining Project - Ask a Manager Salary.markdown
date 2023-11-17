@@ -3304,3 +3304,9 @@ This project was definingly not perfect. At all stages in the process, decisions
 - Allow for salaries over \$600,000 or find a more mathematical way to find the cutoff point
 
 Overall though, this was an interesting project to attempt and helped me develop my skills in python for data science. 
+
+## Additional Retrospective Potential Updates
+
+In addition to the project next steps listed above, there are a few data splitting related issues in the project above that I would ideally like to correct at some point, but may not have time to.
+
+The main issue is the inclusion of all data in the clustering method, and the subsequent train test split. All data was run through the clustering algorithm to create the best clusters for all data; however, in a true experiment, the training data used to validate the prediction algorithm should also be held from the cluster fitting. The training data thus should be run through the cluster assignment after cluster fitting and then predicted from the final prediction model. This ensures no data snooping is done. While thought about, since both models' performance was poor, this can be left as a though exercise and not implemented.

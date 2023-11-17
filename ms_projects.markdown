@@ -26,3 +26,8 @@ Project visualizing Master's degrees awarded in the state of Colorado from 2001-
 
 #### [Ask A Manager Salary Survey Data Pipeline Project]({{site.url}}/ms_projects/dsta5506_aamsurvey)
 Data mining pipeline project that goes through the cleaning and tidying of data, visualization and analysis, clustering, and prediction modeling. Major packages used include scapy, sci-kit learn, and plotly.
+
+### DTSA 5510 - Unsupervised Learning (🐍 Python)
+
+#### [Non-negative Matrix Factorization to Cluster BBC News Article Topics (Kaggle)]({{site.url}}/ms_projects/dtsa5510_bbcnews)
+Using Non-negative Matrix Factorization techniques to cluster articles by topic. Utilizes spaCy and TF-IDF vectorization to transform the article text to a matrix. Also compares NMF techniques to supervised classification techniques.
