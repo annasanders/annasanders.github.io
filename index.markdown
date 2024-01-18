@@ -22,14 +22,16 @@ title: 🦕 Welcome to my Website!
 
 ## ⏲️ Only Got a Few Minutes? 
 
-**Dashboard:** I have a working R Shiny App based off of my favorite Video Game Series: Pokémon. Find the link and code [here!]({{ site.url }}/r/pkmn_dshbrd)
+**Dashboard:** I have a working R Shiny App based off of my favorite Video Game Series: Pokémon. Find the link and code [here!]({{ site.url }}/r/pkmn_dshbrd). It's not up to do date right now (so many new Pokémon!), but it is a functional dashboard.
 
 **ML Project (Supervised and Unsupervised):** Take a look at my final project for the Data Mining Project class [here!]({{ site.url }}/ms_projects/dsta5506_aamsurvey)
+
+**Deep Learning Projects:** It took a lot of time and tutorial reading, but I have completed multiple Kaggle competitions using neural networks! Find theme [here!]({{ site.url }}/ms_projects)
 
 <br>
 
 ## 🗺 Recent Website Updates: 
 
-I have started a MS in Data Science! I'll be adding all projects to the site [here!]({{ site.url }}/ms_projects)
+As I continue with my M.S. in Data Science, I've added even more projects [here!]({{ site.url }}/ms_projects)
 
-Want to know how I created this Awesome Website? I've written a guide [here!]({{ site.url }}/about_website)
+Want to know how I created this Awesome Website™️? I've written a guide [here!]({{ site.url }}/about_website)

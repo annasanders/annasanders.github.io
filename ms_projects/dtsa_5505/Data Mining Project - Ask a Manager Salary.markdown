@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Ask A Manager Survey Reported Salaries from 2022 and 2023
-permalink: /ms_projects/dsta5506_aamsurvey
+title: DTSA 5505 - Ask A Manager Survey Reported Salaries from 2022 and 2023
+permalink: /ms_projects/dtsa5506_aamsurvey
 ---
 
 - 2023 Data From: [Ask A Manager 2023 Survey Post](https://www.askamanager.org/2023/04/how-much-money-do-you-make-6.html)

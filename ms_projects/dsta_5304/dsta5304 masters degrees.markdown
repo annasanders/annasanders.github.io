@@ -1,13 +1,13 @@
 ---
 layout: page
-title: DSTA 5304 - Master's Degrees
-permalink: /ms_projects/dsta5304_mastersdeg
+title: DTSA 5304 - Master's Degrees
+permalink: /ms_projects/dtsa5304_mastersdeg
 ---
 
 # Post Secondary Degrees Awarded in Colorado
-The following data visualizations will use the Degrees Awarded to Post-Secondary Graduates in Colorado data set available on the [Colorado Information Marketplace ](https://data.colorado.gov/Higher-Education/Degrees-Awarded-to-Post-Secondary-Graduates-in-Col/hxf8-ab6k). The data includes all degrees, including both certificates, associates, undergraduate, and graduate degrees for all degrees awarded by the Colorado Board of Higher Education since 2001 and up to 2017. The data is broken down further by Institution, gender, ethnicity, age, and program.
+The following data visualizations will use the Degrees Awarded to Post-Secondary Graduates in Colorado data set available on the Colorado Information Marketplace (https://data.colorado.gov/Higher-Education/Degrees-Awarded-to-Post-Secondary-Graduates-in-Col/hxf8-ab6k). The data includes all degrees, including both certificates, associates, undergraduate, and graduate degrees for all degrees awarded by the Colorado Board of Higher Education since 2001 and up to 2017. The data is broken down further by Institution, gender, ethnicity, age, and program.
 
-Some key questions we can seek to answer with this data includes:
+Some key questions we can seek to answer with this data include:
 - What are the most popular programs?
 - What are the demographics of people completing certificates, associates, undergraduate, and graduate degrees?
 - Are there noticeable shifts in enrollment in certain programs over time?
@@ -15,14 +15,11 @@ Some key questions we can seek to answer with this data includes:
 
 As the dataset is fairly large, I am choosing to focus just on Master's Degrees awarded. This will help further refine our goals and tasks:
 - **Task:** View various metrics on Masters degrees awarded in Colorado to discern various relationships, including: degrees earned, gender breakdown, institution breakdown, and more
-- **Means:** This task will be a dashboard where users can select a degree program and view various graphs over time
+- **Means:** This task will be 
 - **Characteristics:** This task seeks to learn the relationships between Masters degrees earned in Colorado over time in conjunction with the additional metrics provided in the data set
 - **Target data:** The data will need to be pre-aggregated based on metrics, as the dataset is quite large
 - **Workflow:** A user will be able to select a field of study to update multiple graphs to show the relationship between Masters Degrees over time
 - **Roles:** The potentials roles are people who are interested in the change in Masters degrees awarded in Colorado over time, which could include those who work in higher education, prospective Masters degree students, and more
-
-## Final Project Sketch
-![]({{site.url}}/ms_projects/dsta5304_mastersdeg/Final_Project_Sketch.png)
 
 ```python
 # Libraries
@@ -228,10 +225,6 @@ I specifically made the Gender Breakdown and Residency Breakdown graph a normali
 
 In a perfect world, my preliminary evaluation will be a survey that is directly linked to the dashboard/visualization. A survey evaluation would also allow feedback from the largest and likely widest subset of users. I would like to design the survey to collect qualitative data on the overall design, visualizations, and ease of use. In the survey, there would be a section of general questions, like 'how easy was this dashboard to navigate,' 'how easy was each chart to read.' Another section would focus more on individual visual marks and representation, like 'did you find the colors distinct enough' and 'were the axes easy to read and interpret.' The last section would ask specific questions on overall insights a user would be able to gain from the graph. Asking these questions would help determine if valuable and correct insights were being gained from looking at the data. Lastly, there would be a free text option to provide any additional questions or comments. The dashboard would be successful if most responses were positive on the dashboard's features and visual representation, and if the user correctly identified overall trends within the data.
 
-However, as I am likely not able to collect that type of feedback on my personal project website, I have instead chosen to ask my friends and family for direct feedback on this iteration of the visualization. Some highlights include:
-- The color scales are visually appealing
-- The drop down menu was intuitive enough
-- Some of the graphs still look cluttered, especially the institution breakdown
-- Some degree options are sparse and may not need to be included
+However, as I am likely not able to collect that type of feedback on my personal project website, I have instead chosen to ask my friends and family for direct feedback on this iteration of the visualization.
 
 In future versions, I would like to further refine the filtering and display of the data. The individual Degree Program filter is fine, but I would like to have the overall list searchable and allow for multi-selection to look at multiple degree programs in aggregate. I would also like to find out why there doesn't seem to be data for 2011, which makes the overall visualization look unreliable as it is missing data.

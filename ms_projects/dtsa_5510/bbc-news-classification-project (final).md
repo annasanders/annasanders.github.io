@@ -1,6 +1,6 @@
 ---
 layout: page
-title: BBC News Classification Project
+title: DTSA 5510 - BBC News Classification Project
 permalink: /ms_projects/dtsa5510_bbcnews
 ---
 
