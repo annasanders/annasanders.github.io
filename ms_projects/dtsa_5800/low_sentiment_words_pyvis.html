@@ -1,0 +1,364 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 1600;
+                 height: 1200;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+             #config {
+                 float: left;
+                 width: 400px;
+                 height: 600px;
+             }
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+            <div id="config"></div>
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"group": 1, "id": "lululemon", "label": "lululemon", "shape": "dot", "size": 35}, {"color": "#97c2fc", "id": "respond", "label": "respond", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "friday", "label": "friday", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "wrong", "label": "wrong", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "go", "label": "go", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "thing", "label": "thing", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fail", "label": "fail", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "money", "label": "money", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "take", "label": "take", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "quick", "label": "quick", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "order", "label": "order", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "missing", "label": "missing", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "response", "label": "response", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "emailed", "label": "emailed", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "worst", "label": "worst", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "claim", "label": "claim", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "request", "label": "request", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "therefore", "label": "therefore", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "email", "label": "email", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "year", "label": "year", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "seen", "label": "seen", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ive", "label": "ive", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "service", "label": "service", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "customer", "label": "customer", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "assholes", "label": "assholes", "shape": "dot", "size": 10}, {"group": 2, "id": "nike", "label": "nike", "shape": "dot", "size": 35}, {"group": 3, "id": "adidas", "label": "adidas", "shape": "dot", "size": 35}, {"color": "#97c2fc", "id": "murder", "label": "murder", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "kingjames", "label": "kingjames", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "shit", "label": "shit", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "eneskanter", "label": "eneskanter", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "nba", "label": "nba", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\u2066", "label": "\u2066", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\u2069", "label": "\u2069", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "china", "label": "china", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fuck", "label": "fuck", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "shoe", "label": "shoe", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "people", "label": "people", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "", "label": "", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "say", "label": "say", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "racist", "label": "racist", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "no", "label": "no", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "nfl", "label": "nfl", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "get", "label": "get", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "rt", "label": "rt", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ill", "label": "ill", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "lasership", "label": "lasership", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "mean", "label": "mean", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "gruden", "label": "gruden", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "jon", "label": "jon", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "v", "label": "v", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "bos", "label": "bos", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "first", "label": "first", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fucking", "label": "fucking", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "statute", "label": "statute", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "limitation", "label": "limitation", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "labor", "label": "labor", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "slavery", "label": "slavery", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "im", "label": "im", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "davidwebbshow", "label": "davidwebbshow", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "is", "label": "is", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "hate", "label": "hate", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "suck", "label": "suck", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "you", "label": "you", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "app", "label": "app", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "company", "label": "company", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "a", "label": "a", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "the", "label": "the", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "communist", "label": "communist", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "support", "label": "support", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "prison", "label": "prison", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "stop", "label": "stop", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fake", "label": "fake", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "slave", "label": "slave", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "dont", "label": "dont", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "know", "label": "know", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "snkrs", "label": "snkrs", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "yall", "label": "yall", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "dead", "label": "dead", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "jumpman23", "label": "jumpman23", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "package", "label": "package", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "forced", "label": "forced", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "us", "label": "us", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "donaldjtrumpjr", "label": "donaldjtrumpjr", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "stolen", "label": "stolen", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "chinese", "label": "chinese", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "dick", "label": "dick", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "guy", "label": "guy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "and", "label": "and", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "u", "label": "u", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "damn", "label": "damn", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "trying", "label": "trying", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "just", "label": "just", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "racism", "label": "racism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "camp", "label": "camp", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "make", "label": "make", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "cant", "label": "cant", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "bitch", "label": "bitch", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "need", "label": "need", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "black", "label": "black", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "drop", "label": "drop", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "time", "label": "time", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "profit", "label": "profit", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "right", "label": "right", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "many", "label": "many", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "abuse", "label": "abuse", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fire", "label": "fire", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "evil", "label": "evil", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "much", "label": "much", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "think", "label": "think", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ccp", "label": "ccp", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "bullshit", "label": "bullshit", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "pair", "label": "pair", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "trvisxx", "label": "trvisxx", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "multiple", "label": "multiple", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "error", "label": "error", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "thousand", "label": "thousand", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "care", "label": "care", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "mother", "label": "mother", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "crime", "label": "crime", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "product", "label": "product", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "who", "label": "who", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "got", "label": "got", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "said", "label": "said", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "shame", "label": "shame", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "your", "label": "your", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "name", "label": "name", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "coward", "label": "coward", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "disgrace", "label": "disgrace", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "kaepernick7", "label": "kaepernick7", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "threat", "label": "threat", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "separated", "label": "separated", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "torture", "label": "torture", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "see", "label": "see", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "how", "label": "how", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "daddy", "label": "daddy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "babies", "label": "babies", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "that", "label": "that", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "disgusting", "label": "disgusting", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "cruel", "label": "cruel", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "purpose", "label": "purpose", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "deterrent", "label": "deterrent", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "day", "label": "day", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "criminal", "label": "criminal", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "zip", "label": "zip", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "stupid", "label": "stupid", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\ude2d", "label": "\ud83d\ude2d", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "steal", "label": "steal", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\ude25", "label": "\ud83d\ude25", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "abused", "label": "abused", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "resulting", "label": "resulting", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "world", "label": "world", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\udc94", "label": "\ud83d\udc94", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ass", "label": "ass", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "store", "label": "store", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "detention", "label": "detention", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ufe0f", "label": "\ufe0f", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fedex", "label": "fedex", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\ude12", "label": "\ud83d\ude12", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "adidasoriginals", "label": "adidasoriginals", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "employee", "label": "employee", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "pissed", "label": "pissed", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "mint", "label": "mint", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "aaronrodgers12", "label": "aaronrodgers12", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "statefarm", "label": "statefarm", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "buy", "label": "buy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "of", "label": "of", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "site", "label": "site", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ridiculous", "label": "ridiculous", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "business", "label": "business", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "bad", "label": "bad", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "lost", "label": "lost", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "stealing", "label": "stealing", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "experience", "label": "experience", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "teammate", "label": "teammate", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "including", "label": "including", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "point", "label": "point", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "life", "label": "life", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "based", "label": "based", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "lets", "label": "lets", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "pksubban1", "label": "pksubban1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "longhaul", "label": "longhaul", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "covid", "label": "covid", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "whole", "label": "whole", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "result", "label": "result", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "nhl", "label": "nhl", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "suffering", "label": "suffering", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "dying", "label": "dying", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "shalene", "label": "shalene", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "njdevils", "label": "njdevils", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "adidashockey", "label": "adidashockey", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "unvaxxed", "label": "unvaxxed", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "nycthemic", "label": "nycthemic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "hey", "label": "hey", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "pk", "label": "pk", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "symptom", "label": "symptom", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "drag", "label": "drag", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "walk", "label": "walk", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "dirty", "label": "dirty", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "po", "label": "po", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "americans", "label": "americans", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "skate", "label": "skate", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "foot", "label": "foot", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "pack", "label": "pack", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fedexhelp", "label": "fedexhelp", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "play", "label": "play", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "player", "label": "player", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "bought", "label": "bought", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "percentage", "label": "percentage", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "scam", "label": "scam", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "gang", "label": "gang", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "easportsfifa", "label": "easportsfifa", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "not", "label": "not", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "rogan", "label": "rogan", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ya", "label": "ya", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "game", "label": "game", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "anymore", "label": "anymore", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "joe", "label": "joe", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "real", "label": "real", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ruining", "label": "ruining", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "family", "label": "family", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "disk", "label": "disk", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "limp", "label": "limp", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "christmas", "label": "christmas", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "least", "label": "least", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "gosstj", "label": "gosstj", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "folk", "label": "folk", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "league", "label": "league", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "kept", "label": "kept", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "sneaker", "label": "sneaker", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fucked", "label": "fucked", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "antisemitic", "label": "antisemitic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "pauly0x", "label": "pauly0x", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "tired", "label": "tired", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "smh", "label": "smh", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "running", "label": "running", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "kinda", "label": "kinda", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "wtf", "label": "wtf", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "mall", "label": "mall", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "hypebeast", "label": "hypebeast", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "confirmed", "label": "confirmed", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "saying", "label": "saying", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "couldnt", "label": "couldnt", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "drawing", "label": "drawing", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "wake", "label": "wake", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "online", "label": "online", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "reselling", "label": "reselling", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "scumbag", "label": "scumbag", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "box", "label": "box", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "content", "label": "content", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "putting", "label": "putting", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "realize", "label": "realize", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "yeezy", "label": "yeezy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fix", "label": "fix", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "bred", "label": "bred", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "yeezys", "label": "yeezys", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "clothes", "label": "clothes", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "looking", "label": "looking", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "making", "label": "making", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "team", "label": "team", "shape": "dot", "size": 10}]);
+                  edges = new vis.DataSet([{"from": "lululemon", "title": 2, "to": "respond", "width": 0}, {"from": "lululemon", "title": 1, "to": "lululemon", "width": 0}, {"from": "lululemon", "title": 1, "to": "friday", "width": 0}, {"from": "lululemon", "title": 1, "to": "wrong", "width": 0}, {"from": "lululemon", "title": 1, "to": "go", "width": 0}, {"from": "lululemon", "title": 1, "to": "thing", "width": 0}, {"from": "lululemon", "title": 1, "to": "fail", "width": 0}, {"from": "lululemon", "title": 1, "to": "money", "width": 0}, {"from": "lululemon", "title": 1, "to": "take", "width": 0}, {"from": "lululemon", "title": 1, "to": "quick", "width": 0}, {"from": "lululemon", "title": 1, "to": "order", "width": 0}, {"from": "lululemon", "title": 1, "to": "missing", "width": 0}, {"from": "lululemon", "title": 1, "to": "response", "width": 0}, {"from": "lululemon", "title": 1, "to": "emailed", "width": 0}, {"from": "lululemon", "title": 1, "to": "worst", "width": 0}, {"from": "lululemon", "title": 1, "to": "claim", "width": 0}, {"from": "lululemon", "title": 1, "to": "request", "width": 0}, {"from": "lululemon", "title": 1, "to": "therefore", "width": 0}, {"from": "lululemon", "title": 1, "to": "email", "width": 0}, {"from": "lululemon", "title": 1, "to": "year", "width": 0}, {"from": "lululemon", "title": 1, "to": "seen", "width": 0}, {"from": "lululemon", "title": 1, "to": "ive", "width": 0}, {"from": "lululemon", "title": 1, "to": "service", "width": 0}, {"from": "lululemon", "title": 1, "to": "customer", "width": 0}, {"from": "lululemon", "title": 1, "to": "assholes", "width": 0}, {"from": "nike", "title": 5, "to": "adidas", "width": 0}, {"from": "nike", "title": 7, "to": "nike", "width": 0}, {"from": "nike", "title": 43, "to": "murder", "width": 0}, {"from": "nike", "title": 41, "to": "kingjames", "width": 0}, {"from": "nike", "title": 39, "to": "shit", "width": 0}, {"from": "nike", "title": 39, "to": "eneskanter", "width": 0}, {"from": "nike", "title": 31, "to": "nba", "width": 0}, {"from": "nike", "title": 30, "to": "\u2066", "width": 0}, {"from": "nike", "title": 29, "to": "\u2069", "width": 0}, {"from": "nike", "title": 14, "to": "china", "width": 0}, {"from": "nike", "title": 10, "to": "fuck", "width": 0}, {"from": "nike", "title": 28, "to": "shoe", "width": 0}, {"from": "nike", "title": 27, "to": "people", "width": 0}, {"from": "nike", "title": 26, "to": "", "width": 0}, {"from": "nike", "title": 25, "to": "say", "width": 0}, {"from": "nike", "title": 24, "to": "racist", "width": 0}, {"from": "nike", "title": 23, "to": "no", "width": 0}, {"from": "nike", "title": 23, "to": "nfl", "width": 0}, {"from": "nike", "title": 6, "to": "get", "width": 0}, {"from": "nike", "title": 22, "to": "rt", "width": 0}, {"from": "nike", "title": 20, "to": "ill", "width": 0}, {"from": "nike", "title": 19, "to": "lasership", "width": 0}, {"from": "nike", "title": 19, "to": "mean", "width": 0}, {"from": "nike", "title": 19, "to": "gruden", "width": 0}, {"from": "nike", "title": 19, "to": "jon", "width": 0}, {"from": "nike", "title": 19, "to": "v", "width": 0}, {"from": "nike", "title": 19, "to": "bos", "width": 0}, {"from": "nike", "title": 19, "to": "first", "width": 0}, {"from": "nike", "title": 18, "to": "email", "width": 0}, {"from": "nike", "title": 7, "to": "fucking", "width": 0}, {"from": "nike", "title": 18, "to": "statute", "width": 0}, {"from": "nike", "title": 18, "to": "limitation", "width": 0}, {"from": "nike", "title": 18, "to": "labor", "width": 0}, {"from": "nike", "title": 6, "to": "slavery", "width": 0}, {"from": "nike", "title": 17, "to": "im", "width": 0}, {"from": "nike", "title": 17, "to": "davidwebbshow", "width": 0}, {"from": "nike", "title": 17, "to": "is", "width": 0}, {"from": "nike", "title": 8, "to": "hate", "width": 0}, {"from": "nike", "title": 16, "to": "suck", "width": 0}, {"from": "nike", "title": 15, "to": "you", "width": 0}, {"from": "nike", "title": 6, "to": "app", "width": 0}, {"from": "nike", "title": 14, "to": "company", "width": 0}, {"from": "nike", "title": 14, "to": "a", "width": 0}, {"from": "nike", "title": 14, "to": "the", "width": 0}, {"from": "nike", "title": 13, "to": "communist", "width": 0}, {"from": "nike", "title": 13, "to": "support", "width": 0}, {"from": "nike", "title": 13, "to": "prison", "width": 0}, {"from": "nike", "title": 7, "to": "stop", "width": 0}, {"from": "nike", "title": 12, "to": "fake", "width": 0}, {"from": "nike", "title": 12, "to": "slave", "width": 0}, {"from": "nike", "title": 12, "to": "dont", "width": 0}, {"from": "nike", "title": 12, "to": "know", "width": 0}, {"from": "nike", "title": 12, "to": "snkrs", "width": 0}, {"from": "nike", "title": 11, "to": "yall", "width": 0}, {"from": "nike", "title": 11, "to": "missing", "width": 0}, {"from": "nike", "title": 11, "to": "dead", "width": 0}, {"from": "nike", "title": 11, "to": "jumpman23", "width": 0}, {"from": "nike", "title": 11, "to": "package", "width": 0}, {"from": "nike", "title": 11, "to": "forced", "width": 0}, {"from": "nike", "title": 10, "to": "us", "width": 0}, {"from": "nike", "title": 10, "to": "donaldjtrumpjr", "width": 0}, {"from": "nike", "title": 10, "to": "stolen", "width": 0}, {"from": "nike", "title": 10, "to": "chinese", "width": 0}, {"from": "nike", "title": 10, "to": "dick", "width": 0}, {"from": "nike", "title": 10, "to": "guy", "width": 0}, {"from": "nike", "title": 10, "to": "and", "width": 0}, {"from": "nike", "title": 9, "to": "money", "width": 0}, {"from": "nike", "title": 9, "to": "u", "width": 0}, {"from": "nike", "title": 9, "to": "damn", "width": 0}, {"from": "nike", "title": 9, "to": "trying", "width": 0}, {"from": "nike", "title": 9, "to": "just", "width": 0}, {"from": "nike", "title": 9, "to": "racism", "width": 0}, {"from": "nike", "title": 9, "to": "camp", "width": 0}, {"from": "nike", "title": 9, "to": "make", "width": 0}, {"from": "nike", "title": 9, "to": "cant", "width": 0}, {"from": "nike", "title": 7, "to": "bitch", "width": 0}, {"from": "nike", "title": 9, "to": "need", "width": 0}, {"from": "nike", "title": 9, "to": "black", "width": 0}, {"from": "nike", "title": 9, "to": "drop", "width": 0}, {"from": "nike", "title": 8, "to": "time", "width": 0}, {"from": "nike", "title": 8, "to": "profit", "width": 0}, {"from": "nike", "title": 8, "to": "right", "width": 0}, {"from": "nike", "title": 8, "to": "many", "width": 0}, {"from": "nike", "title": 8, "to": "abuse", "width": 0}, {"from": "nike", "title": 8, "to": "fire", "width": 0}, {"from": "nike", "title": 7, "to": "evil", "width": 0}, {"from": "nike", "title": 7, "to": "much", "width": 0}, {"from": "nike", "title": 7, "to": "think", "width": 0}, {"from": "nike", "title": 7, "to": "ccp", "width": 0}, {"from": "nike", "title": 7, "to": "bullshit", "width": 0}, {"from": "nike", "title": 7, "to": "pair", "width": 0}, {"from": "nike", "title": 7, "to": "trvisxx", "width": 0}, {"from": "nike", "title": 7, "to": "multiple", "width": 0}, {"from": "nike", "title": 7, "to": "error", "width": 0}, {"from": "nike", "title": 7, "to": "wrong", "width": 0}, {"from": "nike", "title": 7, "to": "thousand", "width": 0}, {"from": "nike", "title": 7, "to": "care", "width": 0}, {"from": "nike", "title": 7, "to": "mother", "width": 0}, {"from": "nike", "title": 7, "to": "crime", "width": 0}, {"from": "nike", "title": 7, "to": "product", "width": 0}, {"from": "nike", "title": 7, "to": "who", "width": 0}, {"from": "nike", "title": 7, "to": "got", "width": 0}, {"from": "nike", "title": 7, "to": "said", "width": 0}, {"from": "nike", "title": 7, "to": "year", "width": 0}, {"from": "nike", "title": 7, "to": "shame", "width": 0}, {"from": "nike", "title": 6, "to": "your", "width": 0}, {"from": "nike", "title": 7, "to": "name", "width": 0}, {"from": "nike", "title": 7, "to": "coward", "width": 0}, {"from": "nike", "title": 6, "to": "disgrace", "width": 0}, {"from": "nike", "title": 6, "to": "kaepernick7", "width": 0}, {"from": "nike", "title": 6, "to": "threat", "width": 0}, {"from": "nike", "title": 6, "to": "separated", "width": 0}, {"from": "nike", "title": 6, "to": "torture", "width": 0}, {"from": "nike", "title": 6, "to": "see", "width": 0}, {"from": "nike", "title": 6, "to": "how", "width": 0}, {"from": "nike", "title": 6, "to": "daddy", "width": 0}, {"from": "nike", "title": 6, "to": "babies", "width": 0}, {"from": "nike", "title": 6, "to": "that", "width": 0}, {"from": "nike", "title": 6, "to": "disgusting", "width": 0}, {"from": "nike", "title": 6, "to": "cruel", "width": 0}, {"from": "nike", "title": 6, "to": "purpose", "width": 0}, {"from": "nike", "title": 6, "to": "service", "width": 0}, {"from": "nike", "title": 6, "to": "deterrent", "width": 0}, {"from": "nike", "title": 6, "to": "day", "width": 0}, {"from": "nike", "title": 6, "to": "criminal", "width": 0}, {"from": "nike", "title": 6, "to": "zip", "width": 0}, {"from": "nike", "title": 6, "to": "stupid", "width": 0}, {"from": "nike", "title": 6, "to": "\ud83d\ude2d", "width": 0}, {"from": "nike", "title": 6, "to": "steal", "width": 0}, {"from": "nike", "title": 6, "to": "\ud83d\ude25", "width": 0}, {"from": "nike", "title": 6, "to": "abused", "width": 0}, {"from": "nike", "title": 6, "to": "resulting", "width": 0}, {"from": "nike", "title": 6, "to": "world", "width": 0}, {"from": "nike", "title": 6, "to": "\ud83d\udc94", "width": 0}, {"from": "nike", "title": 6, "to": "ass", "width": 0}, {"from": "nike", "title": 6, "to": "store", "width": 0}, {"from": "nike", "title": 6, "to": "detention", "width": 0}, {"from": "nike", "title": 6, "to": "\ufe0f", "width": 0}, {"from": "adidas", "title": 1, "to": "adidas", "width": 0}, {"from": "adidas", "title": 7, "to": "fedex", "width": 0}, {"from": "adidas", "title": 6, "to": "shit", "width": 0}, {"from": "adidas", "title": 1, "to": "im", "width": 0}, {"from": "adidas", "title": 4, "to": "app", "width": 0}, {"from": "adidas", "title": 4, "to": "shoe", "width": 0}, {"from": "adidas", "title": 4, "to": "fucking", "width": 0}, {"from": "adidas", "title": 3, "to": "\ud83d\ude12", "width": 0}, {"from": "adidas", "title": 3, "to": "adidasoriginals", "width": 0}, {"from": "adidas", "title": 3, "to": "yall", "width": 0}, {"from": "adidas", "title": 3, "to": "employee", "width": 0}, {"from": "adidas", "title": 3, "to": "get", "width": 0}, {"from": "adidas", "title": 3, "to": "pissed", "width": 0}, {"from": "adidas", "title": 2, "to": "mint", "width": 0}, {"from": "adidas", "title": 2, "to": "aaronrodgers12", "width": 0}, {"from": "adidas", "title": 2, "to": "statefarm", "width": 0}, {"from": "adidas", "title": 2, "to": "buy", "width": 0}, {"from": "adidas", "title": 2, "to": "see", "width": 0}, {"from": "adidas", "title": 2, "to": "", "width": 0}, {"from": "adidas", "title": 2, "to": "pair", "width": 0}, {"from": "adidas", "title": 2, "to": "order", "width": 0}, {"from": "adidas", "title": 2, "to": "racist", "width": 0}, {"from": "adidas", "title": 2, "to": "of", "width": 0}, {"from": "adidas", "title": 2, "to": "customer", "width": 0}, {"from": "adidas", "title": 1, "to": "just", "width": 0}, {"from": "adidas", "title": 2, "to": "site", "width": 0}, {"from": "adidas", "title": 2, "to": "ridiculous", "width": 0}, {"from": "adidas", "title": 2, "to": "business", "width": 0}, {"from": "adidas", "title": 2, "to": "bad", "width": 0}, {"from": "adidas", "title": 2, "to": "lost", "width": 0}, {"from": "adidas", "title": 1, "to": "stealing", "width": 0}, {"from": "adidas", "title": 2, "to": "store", "width": 0}, {"from": "adidas", "title": 2, "to": "experience", "width": 0}, {"from": "adidas", "title": 2, "to": "teammate", "width": 0}, {"from": "adidas", "title": 2, "to": "the", "width": 0}, {"from": "adidas", "title": 2, "to": "including", "width": 0}, {"from": "adidas", "title": 2, "to": "steal", "width": 0}, {"from": "adidas", "title": 2, "to": "go", "width": 0}, {"from": "adidas", "title": 2, "to": "service", "width": 0}, {"from": "adidas", "title": 2, "to": "trying", "width": 0}, {"from": "adidas", "title": 2, "to": "point", "width": 0}, {"from": "adidas", "title": 2, "to": "life", "width": 0}, {"from": "adidas", "title": 2, "to": "rt", "width": 0}, {"from": "adidas", "title": 2, "to": "based", "width": 0}, {"from": "adidas", "title": 2, "to": "u", "width": 0}, {"from": "adidas", "title": 1, "to": "lets", "width": 0}, {"from": "adidas", "title": 1, "to": "pksubban1", "width": 0}, {"from": "adidas", "title": 1, "to": "longhaul", "width": 0}, {"from": "adidas", "title": 1, "to": "covid", "width": 0}, {"from": "adidas", "title": 1, "to": "whole", "width": 0}, {"from": "adidas", "title": 1, "to": "result", "width": 0}, {"from": "adidas", "title": 1, "to": "nhl", "width": 0}, {"from": "adidas", "title": 1, "to": "suffering", "width": 0}, {"from": "adidas", "title": 1, "to": "dying", "width": 0}, {"from": "adidas", "title": 1, "to": "shalene", "width": 0}, {"from": "adidas", "title": 1, "to": "njdevils", "width": 0}, {"from": "adidas", "title": 1, "to": "adidashockey", "width": 0}, {"from": "adidas", "title": 1, "to": "unvaxxed", "width": 0}, {"from": "adidas", "title": 1, "to": "nycthemic", "width": 0}, {"from": "adidas", "title": 1, "to": "hey", "width": 0}, {"from": "adidas", "title": 1, "to": "pk", "width": 0}, {"from": "adidas", "title": 1, "to": "symptom", "width": 0}, {"from": "adidas", "title": 1, "to": "drag", "width": 0}, {"from": "adidas", "title": 1, "to": "walk", "width": 0}, {"from": "adidas", "title": 1, "to": "dirty", "width": 0}, {"from": "adidas", "title": 1, "to": "po", "width": 0}, {"from": "adidas", "title": 1, "to": "americans", "width": 0}, {"from": "adidas", "title": 1, "to": "skate", "width": 0}, {"from": "adidas", "title": 1, "to": "foot", "width": 0}, {"from": "adidas", "title": 1, "to": "pack", "width": 0}, {"from": "adidas", "title": 1, "to": "fedexhelp", "width": 0}, {"from": "adidas", "title": 1, "to": "play", "width": 0}, {"from": "adidas", "title": 1, "to": "player", "width": 0}, {"from": "adidas", "title": 1, "to": "bought", "width": 0}, {"from": "adidas", "title": 1, "to": "percentage", "width": 0}, {"from": "adidas", "title": 1, "to": "mean", "width": 0}, {"from": "adidas", "title": 1, "to": "a", "width": 0}, {"from": "adidas", "title": 1, "to": "fuck", "width": 0}, {"from": "adidas", "title": 1, "to": "scam", "width": 0}, {"from": "adidas", "title": 1, "to": "gang", "width": 0}, {"from": "adidas", "title": 1, "to": "easportsfifa", "width": 0}, {"from": "adidas", "title": 1, "to": "not", "width": 0}, {"from": "adidas", "title": 1, "to": "rogan", "width": 0}, {"from": "adidas", "title": 1, "to": "your", "width": 0}, {"from": "adidas", "title": 1, "to": "ya", "width": 0}, {"from": "adidas", "title": 1, "to": "game", "width": 0}, {"from": "adidas", "title": 1, "to": "anymore", "width": 0}, {"from": "adidas", "title": 1, "to": "joe", "width": 0}, {"from": "adidas", "title": 1, "to": "stop", "width": 0}, {"from": "adidas", "title": 1, "to": "real", "width": 0}, {"from": "adidas", "title": 1, "to": "ruining", "width": 0}, {"from": "adidas", "title": 1, "to": "family", "width": 0}, {"from": "adidas", "title": 1, "to": "disk", "width": 0}, {"from": "adidas", "title": 1, "to": "limp", "width": 0}, {"from": "adidas", "title": 1, "to": "christmas", "width": 0}, {"from": "adidas", "title": 1, "to": "least", "width": 0}, {"from": "adidas", "title": 1, "to": "gosstj", "width": 0}, {"from": "adidas", "title": 1, "to": "folk", "width": 0}, {"from": "adidas", "title": 1, "to": "league", "width": 0}, {"from": "adidas", "title": 1, "to": "kept", "width": 0}, {"from": "adidas", "title": 1, "to": "bitch", "width": 0}, {"from": "adidas", "title": 1, "to": "sneaker", "width": 0}, {"from": "adidas", "title": 1, "to": "fucked", "width": 0}, {"from": "adidas", "title": 1, "to": "antisemitic", "width": 0}, {"from": "adidas", "title": 1, "to": "pauly0x", "width": 0}, {"from": "adidas", "title": 1, "to": "tired", "width": 0}, {"from": "adidas", "title": 1, "to": "smh", "width": 0}, {"from": "adidas", "title": 1, "to": "hate", "width": 0}, {"from": "adidas", "title": 1, "to": "running", "width": 0}, {"from": "adidas", "title": 1, "to": "kinda", "width": 0}, {"from": "adidas", "title": 1, "to": "wtf", "width": 0}, {"from": "adidas", "title": 1, "to": "got", "width": 0}, {"from": "adidas", "title": 1, "to": "mall", "width": 0}, {"from": "adidas", "title": 1, "to": "hypebeast", "width": 0}, {"from": "adidas", "title": 1, "to": "confirmed", "width": 0}, {"from": "adidas", "title": 1, "to": "saying", "width": 0}, {"from": "adidas", "title": 1, "to": "error", "width": 0}, {"from": "adidas", "title": 1, "to": "couldnt", "width": 0}, {"from": "adidas", "title": 1, "to": "drawing", "width": 0}, {"from": "adidas", "title": 1, "to": "wake", "width": 0}, {"from": "adidas", "title": 1, "to": "online", "width": 0}, {"from": "adidas", "title": 1, "to": "reselling", "width": 0}, {"from": "adidas", "title": 1, "to": "scumbag", "width": 0}, {"from": "adidas", "title": 1, "to": "stolen", "width": 0}, {"from": "adidas", "title": 1, "to": "box", "width": 0}, {"from": "adidas", "title": 1, "to": "content", "width": 0}, {"from": "adidas", "title": 1, "to": "putting", "width": 0}, {"from": "adidas", "title": 1, "to": "realize", "width": 0}, {"from": "adidas", "title": 1, "to": "yeezy", "width": 0}, {"from": "adidas", "title": 1, "to": "fix", "width": 0}, {"from": "adidas", "title": 1, "to": "need", "width": 0}, {"from": "adidas", "title": 1, "to": "suck", "width": 0}, {"from": "adidas", "title": 1, "to": "bred", "width": 0}, {"from": "adidas", "title": 1, "to": "yeezys", "width": 0}, {"from": "adidas", "title": 1, "to": "many", "width": 0}, {"from": "adidas", "title": 1, "to": "clothes", "width": 0}, {"from": "adidas", "title": 1, "to": "looking", "width": 0}, {"from": "adidas", "title": 1, "to": "worst", "width": 0}, {"from": "adidas", "title": 1, "to": "making", "width": 0}, {"from": "adidas", "title": 1, "to": "team", "width": 0}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": false,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+                  // if this network requires displaying the configure window,
+                  // put it in its div
+                  options.configure["container"] = document.getElementById("config");
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

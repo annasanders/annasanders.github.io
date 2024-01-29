@@ -1,0 +1,364 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 1600;
+                 height: 1200;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+             #config {
+                 float: left;
+                 width: 400px;
+                 height: 600px;
+             }
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+            <div id="config"></div>
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"group": 1, "id": "lululemon", "label": "lululemon", "shape": "dot", "size": 35}, {"color": "#97c2fc", "id": "rt", "label": "rt", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\ude02", "label": "\ud83d\ude02", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "dont", "label": "dont", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "deezefi", "label": "deezefi", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "got", "label": "got", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "store", "label": "store", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ufe0f", "label": "\ufe0f", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "", "label": "", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "line", "label": "line", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "year", "label": "year", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "go", "label": "go", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fvckrender", "label": "fvckrender", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "think", "label": "think", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "brand", "label": "brand", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83e\udd23", "label": "\ud83e\udd23", "shape": "dot", "size": 10}, {"group": 2, "id": "nike", "label": "nike", "shape": "dot", "size": 35}, {"color": "#97c2fc", "id": "yeah", "label": "yeah", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "week", "label": "week", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "u", "label": "u", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "retail", "label": "retail", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "time", "label": "time", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\u2744", "label": "\u2744", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "farokh", "label": "farokh", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ceo", "label": "ceo", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "look", "label": "look", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "suit", "label": "suit", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "apparel", "label": "apparel", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "mcdonalds", "label": "mcdonalds", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "free", "label": "free", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "im", "label": "im", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "sale", "label": "sale", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "quora", "label": "quora", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "theyre", "label": "theyre", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "get", "label": "get", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "say", "label": "say", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "uniqlousa", "label": "uniqlousa", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "athleta", "label": "athleta", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "buy", "label": "buy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "sweat", "label": "sweat", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "love", "label": "love", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\udc9b", "label": "\ud83d\udc9b", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "today", "label": "today", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "last", "label": "last", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fdallengroupinc", "label": "fdallengroupinc", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "pant", "label": "pant", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "new", "label": "new", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "comfort", "label": "comfort", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "athleisure", "label": "athleisure", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "didnt", "label": "didnt", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "olympics", "label": "olympics", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "beijing", "label": "beijing", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "target", "label": "target", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "venmo", "label": "venmo", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "is", "label": "is", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "know", "label": "know", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "pandemic", "label": "pandemic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "calvinmcdonald", "label": "calvinmcdonald", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "community", "label": "community", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "mahoneysarah", "label": "mahoneysarah", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "golfer", "label": "golfer", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "capitalone", "label": "capitalone", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "material", "label": "material", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "usemagiclinks", "label": "usemagiclinks", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "perfect", "label": "perfect", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "gwr", "label": "gwr", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "make", "label": "make", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "michelin", "label": "michelin", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "gear", "label": "gear", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "gonna", "label": "gonna", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "primevideo", "label": "primevideo", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "adobe", "label": "adobe", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "salesforce", "label": "salesforce", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "societygroup", "label": "societygroup", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "hubspot", "label": "hubspot", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "theagencyre", "label": "theagencyre", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "paid", "label": "paid", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "tacobell", "label": "tacobell", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "tedtalks", "label": "tedtalks", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "inc", "label": "inc", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "forbes", "label": "forbes", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "entrepreneur", "label": "entrepreneur", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83c\udf85\ud83c\udffb", "label": "\ud83c\udf85\ud83c\udffb", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "tmobile", "label": "tmobile", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "teamcanada", "label": "teamcanada", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "best", "label": "best", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "stuck", "label": "stuck", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "see", "label": "see", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "stylish", "label": "stylish", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "marketing", "label": "marketing", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "shop", "label": "shop", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "thats", "label": "thats", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "receive", "label": "receive", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "deal", "label": "deal", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "authorized", "label": "authorized", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "gift", "label": "gift", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "comfy", "label": "comfy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "stuff", "label": "stuff", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "item", "label": "item", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\udd25", "label": "\ud83d\udd25", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "water", "label": "water", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "golf", "label": "golf", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "educator", "label": "educator", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "bottle", "label": "bottle", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "show", "label": "show", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "tdnewcomb", "label": "tdnewcomb", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "experience", "label": "experience", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "nyc", "label": "nyc", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "system", "label": "system", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "working", "label": "working", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "dress", "label": "dress", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "comfortable", "label": "comfortable", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "plenty", "label": "plenty", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "book", "label": "book", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "or", "label": "or", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ive", "label": "ive", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "tech", "label": "tech", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "maximized", "label": "maximized", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "growing", "label": "growing", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "need", "label": "need", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "online", "label": "online", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "guided", "label": "guided", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "nah", "label": "nah", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "looking", "label": "looking", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "black", "label": "black", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "shirt", "label": "shirt", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "took", "label": "took", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "guest", "label": "guest", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "buying", "label": "buying", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "changed", "label": "changed", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "healthier", "label": "healthier", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "friday", "label": "friday", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "helped", "label": "helped", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ny", "label": "ny", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "spend", "label": "spend", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fitness", "label": "fitness", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "x", "label": "x", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "page", "label": "page", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "low", "label": "low", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "hoodies", "label": "hoodies", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fast", "label": "fast", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "wanna", "label": "wanna", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "woman", "label": "woman", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "nothing", "label": "nothing", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "thechiefservant", "label": "thechiefservant", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "hobo", "label": "hobo", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "made", "label": "made", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "haroldpturd", "label": "haroldpturd", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "invited", "label": "invited", "shape": "dot", "size": 10}, {"group": 3, "id": "adidas", "label": "adidas", "shape": "dot", "size": 35}, {"color": "#97c2fc", "id": "day", "label": "day", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "knight", "label": "knight", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "eneskanter", "label": "eneskanter", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "jumpman23", "label": "jumpman23", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "phil", "label": "phil", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "kingjames", "label": "kingjames", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "china", "label": "china", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "rtfktstudios", "label": "rtfktstudios", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "air", "label": "air", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fly", "label": "fly", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "try", "label": "try", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "owner", "label": "owner", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "lets", "label": "lets", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ticket", "label": "ticket", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "how", "label": "how", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "plane", "label": "plane", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "nba", "label": "nba", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "game", "label": "game", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "shoe", "label": "shoe", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "dear", "label": "dear", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "modern", "label": "modern", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "age", "label": "age", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "slavery", "label": "slavery", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "enduyghurforcedlabor", "label": "enduyghurforcedlabor", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "girl", "label": "girl", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "available", "label": "available", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "hypocritenike", "label": "hypocritenike", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "stop", "label": "stop", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "solefed", "label": "solefed", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "metaverse", "label": "metaverse", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ring", "label": "ring", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "yr", "label": "yr", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "born", "label": "born", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "sport", "label": "sport", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "daansahonsports", "label": "daansahonsports", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "company", "label": "company", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "sneaker", "label": "sneaker", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "purchase", "label": "purchase", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "sea", "label": "sea", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\u2060", "label": "\u2060", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "latest", "label": "latest", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "win", "label": "win", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "virtual", "label": "virtual", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "dark", "label": "dark", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "top", "label": "top", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "point", "label": "point", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "bday", "label": "bday", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "style", "label": "style", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "good", "label": "good", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "partnership", "label": "partnership", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "womens", "label": "womens", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "lebron", "label": "lebron", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\udc40", "label": "\ud83d\udc40", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "netflix", "label": "netflix", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "king", "label": "king", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "gucci", "label": "gucci", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "visit", "label": "visit", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\udc5f", "label": "\ud83d\udc5f", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\u2022", "label": "\u2022", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "dunk", "label": "dunk", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "kobebryant", "label": "kobebryant", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "jordan", "label": "jordan", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "usnikefootball", "label": "usnikefootball", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "digital", "label": "digital", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "undefeated", "label": "undefeated", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "team", "label": "team", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "sign", "label": "sign", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\udcf2", "label": "\ud83d\udcf2", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "cst", "label": "cst", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "rv", "label": "rv", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "mj", "label": "mj", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "starbucks", "label": "starbucks", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "force", "label": "force", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "nikes", "label": "nikes", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "max", "label": "max", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "xbox", "label": "xbox", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "snipesusa", "label": "snipesusa", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "starburst", "label": "starburst", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "james", "label": "james", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "size", "label": "size", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "skittles", "label": "skittles", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "oreo", "label": "oreo", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "subway", "label": "subway", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "iconic", "label": "iconic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "xboxsupport", "label": "xboxsupport", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "playstation", "label": "playstation", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ronwyden", "label": "ronwyden", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "instore", "label": "instore", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "burgerking", "label": "burgerking", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "pair", "label": "pair", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\u203c", "label": "\u203c", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "morrisons", "label": "morrisons", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "lidlgb", "label": "lidlgb", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "aldiuk", "label": "aldiuk", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "asda", "label": "asda", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "tesco", "label": "tesco", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "samsungmobile", "label": "samsungmobile", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "snipesknows", "label": "snipesknows", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "want", "label": "want", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "athlete", "label": "athlete", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "mark", "label": "mark", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\ude4c", "label": "\ud83d\ude4c", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "v", "label": "v", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fancymustachetv", "label": "fancymustachetv", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "uno", "label": "uno", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "anniversary", "label": "anniversary", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "adidasoriginals", "label": "adidasoriginals", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\udea8", "label": "\ud83d\udea8", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "help", "label": "help", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "gm", "label": "gm", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "mens", "label": "mens", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "campaign", "label": "campaign", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "thank", "label": "thank", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "no", "label": "no", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "beyonce", "label": "beyonce", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "yeezy", "label": "yeezy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "solesavy", "label": "solesavy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "jersey", "label": "jersey", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "forum", "label": "forum", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "boredapeyc", "label": "boredapeyc", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "boost", "label": "boost", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "lagalaxy", "label": "lagalaxy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "chance", "label": "chance", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "impossibleisnothing", "label": "impossibleisnothing", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "including", "label": "including", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\udc9a", "label": "\ud83d\udc9a", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "weareivypark", "label": "weareivypark", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "release", "label": "release", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ivy", "label": "ivy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "la", "label": "la", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "thanks", "label": "thanks", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "hotpockets", "label": "hotpockets", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\u2018", "label": "\u2018", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "blazepizza", "label": "blazepizza", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "were", "label": "were", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "justfit", "label": "justfit", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "kick", "label": "kick", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "baitme", "label": "baitme", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "thetraeyoung", "label": "thetraeyoung", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "collection", "label": "collection", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "season", "label": "season", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "drop", "label": "drop", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "generation", "label": "generation", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "austinekeler", "label": "austinekeler", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "exclusive", "label": "exclusive", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "kit", "label": "kit", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "check", "label": "check", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "program", "label": "program", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\u2764", "label": "\u2764", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "player", "label": "player", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "mls", "label": "mls", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\ude0d", "label": "\ud83d\ude0d", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "saturday", "label": "saturday", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "so", "label": "so", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "follow", "label": "follow", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "app", "label": "app", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "xbox20", "label": "xbox20", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\u27a1", "label": "\u27a1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\udc99", "label": "\ud83d\udc99", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "inspire", "label": "inspire", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "getting", "label": "getting", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "maybes", "label": "maybes", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\u2066", "label": "\u2066", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\u2069", "label": "\u2069", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "take", "label": "take", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "way", "label": "way", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "read", "label": "read", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "park", "label": "park", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ad", "label": "ad", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "collab", "label": "collab", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\udcf8", "label": "\ud83d\udcf8", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "shopwss", "label": "shopwss", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "gmoneynft", "label": "gmoneynft", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "listen", "label": "listen", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83e\udd29", "label": "\ud83e\udd29", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "dylanorreli", "label": "dylanorreli", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "mitchell", "label": "mitchell", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "nov", "label": "nov", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "adidashoops", "label": "adidashoops", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "design", "label": "design", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "month", "label": "month", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "court", "label": "court", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "stay", "label": "stay", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "send", "label": "send", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "kevwuzy", "label": "kevwuzy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "punkscomic", "label": "punkscomic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "long", "label": "long", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "opening", "label": "opening", "shape": "dot", "size": 10}]);
+                  edges = new vis.DataSet([{"from": "lululemon", "title": 12, "to": "lululemon", "width": 0}, {"from": "lululemon", "title": 17, "to": "rt", "width": 0}, {"from": "lululemon", "title": 12, "to": "\ud83d\ude02", "width": 0}, {"from": "lululemon", "title": 11, "to": "dont", "width": 0}, {"from": "lululemon", "title": 10, "to": "deezefi", "width": 0}, {"from": "lululemon", "title": 10, "to": "got", "width": 0}, {"from": "lululemon", "title": 10, "to": "store", "width": 0}, {"from": "lululemon", "title": 9, "to": "\ufe0f", "width": 0}, {"from": "lululemon", "title": 8, "to": "", "width": 0}, {"from": "lululemon", "title": 8, "to": "line", "width": 0}, {"from": "lululemon", "title": 8, "to": "year", "width": 0}, {"from": "lululemon", "title": 7, "to": "go", "width": 0}, {"from": "lululemon", "title": 7, "to": "fvckrender", "width": 0}, {"from": "lululemon", "title": 6, "to": "think", "width": 0}, {"from": "lululemon", "title": 6, "to": "brand", "width": 0}, {"from": "lululemon", "title": 5, "to": "\ud83e\udd23", "width": 0}, {"from": "lululemon", "title": 5, "to": "nike", "width": 0}, {"from": "lululemon", "title": 5, "to": "yeah", "width": 0}, {"from": "lululemon", "title": 5, "to": "week", "width": 0}, {"from": "lululemon", "title": 5, "to": "u", "width": 0}, {"from": "lululemon", "title": 5, "to": "retail", "width": 0}, {"from": "lululemon", "title": 5, "to": "time", "width": 0}, {"from": "lululemon", "title": 5, "to": "\u2744", "width": 0}, {"from": "lululemon", "title": 5, "to": "farokh", "width": 0}, {"from": "lululemon", "title": 5, "to": "ceo", "width": 0}, {"from": "lululemon", "title": 5, "to": "look", "width": 0}, {"from": "lululemon", "title": 4, "to": "suit", "width": 0}, {"from": "lululemon", "title": 4, "to": "apparel", "width": 0}, {"from": "lululemon", "title": 4, "to": "mcdonalds", "width": 0}, {"from": "lululemon", "title": 4, "to": "free", "width": 0}, {"from": "lululemon", "title": 4, "to": "im", "width": 0}, {"from": "lululemon", "title": 4, "to": "sale", "width": 0}, {"from": "lululemon", "title": 4, "to": "quora", "width": 0}, {"from": "lululemon", "title": 4, "to": "theyre", "width": 0}, {"from": "lululemon", "title": 4, "to": "get", "width": 0}, {"from": "lululemon", "title": 4, "to": "say", "width": 0}, {"from": "lululemon", "title": 4, "to": "uniqlousa", "width": 0}, {"from": "lululemon", "title": 4, "to": "athleta", "width": 0}, {"from": "lululemon", "title": 4, "to": "buy", "width": 0}, {"from": "lululemon", "title": 4, "to": "sweat", "width": 0}, {"from": "lululemon", "title": 4, "to": "love", "width": 0}, {"from": "lululemon", "title": 4, "to": "\ud83d\udc9b", "width": 0}, {"from": "lululemon", "title": 4, "to": "today", "width": 0}, {"from": "lululemon", "title": 4, "to": "last", "width": 0}, {"from": "lululemon", "title": 4, "to": "fdallengroupinc", "width": 0}, {"from": "lululemon", "title": 4, "to": "pant", "width": 0}, {"from": "lululemon", "title": 4, "to": "new", "width": 0}, {"from": "lululemon", "title": 3, "to": "comfort", "width": 0}, {"from": "lululemon", "title": 3, "to": "athleisure", "width": 0}, {"from": "lululemon", "title": 3, "to": "didnt", "width": 0}, {"from": "lululemon", "title": 3, "to": "olympics", "width": 0}, {"from": "lululemon", "title": 3, "to": "beijing", "width": 0}, {"from": "lululemon", "title": 3, "to": "target", "width": 0}, {"from": "lululemon", "title": 3, "to": "venmo", "width": 0}, {"from": "lululemon", "title": 3, "to": "is", "width": 0}, {"from": "lululemon", "title": 3, "to": "know", "width": 0}, {"from": "lululemon", "title": 3, "to": "pandemic", "width": 0}, {"from": "lululemon", "title": 3, "to": "calvinmcdonald", "width": 0}, {"from": "lululemon", "title": 3, "to": "community", "width": 0}, {"from": "lululemon", "title": 3, "to": "mahoneysarah", "width": 0}, {"from": "lululemon", "title": 3, "to": "golfer", "width": 0}, {"from": "lululemon", "title": 3, "to": "capitalone", "width": 0}, {"from": "lululemon", "title": 3, "to": "material", "width": 0}, {"from": "lululemon", "title": 3, "to": "usemagiclinks", "width": 0}, {"from": "lululemon", "title": 3, "to": "perfect", "width": 0}, {"from": "lululemon", "title": 3, "to": "gwr", "width": 0}, {"from": "lululemon", "title": 3, "to": "make", "width": 0}, {"from": "lululemon", "title": 3, "to": "michelin", "width": 0}, {"from": "lululemon", "title": 3, "to": "gear", "width": 0}, {"from": "lululemon", "title": 3, "to": "gonna", "width": 0}, {"from": "lululemon", "title": 3, "to": "primevideo", "width": 0}, {"from": "lululemon", "title": 3, "to": "adobe", "width": 0}, {"from": "lululemon", "title": 3, "to": "salesforce", "width": 0}, {"from": "lululemon", "title": 3, "to": "societygroup", "width": 0}, {"from": "lululemon", "title": 3, "to": "hubspot", "width": 0}, {"from": "lululemon", "title": 3, "to": "theagencyre", "width": 0}, {"from": "lululemon", "title": 3, "to": "paid", "width": 0}, {"from": "lululemon", "title": 3, "to": "tacobell", "width": 0}, {"from": "lululemon", "title": 3, "to": "tedtalks", "width": 0}, {"from": "lululemon", "title": 3, "to": "inc", "width": 0}, {"from": "lululemon", "title": 3, "to": "forbes", "width": 0}, {"from": "lululemon", "title": 3, "to": "entrepreneur", "width": 0}, {"from": "lululemon", "title": 3, "to": "\ud83c\udf85\ud83c\udffb", "width": 0}, {"from": "lululemon", "title": 3, "to": "tmobile", "width": 0}, {"from": "lululemon", "title": 3, "to": "teamcanada", "width": 0}, {"from": "lululemon", "title": 3, "to": "best", "width": 0}, {"from": "lululemon", "title": 3, "to": "stuck", "width": 0}, {"from": "lululemon", "title": 3, "to": "see", "width": 0}, {"from": "lululemon", "title": 3, "to": "stylish", "width": 0}, {"from": "lululemon", "title": 3, "to": "marketing", "width": 0}, {"from": "lululemon", "title": 3, "to": "shop", "width": 0}, {"from": "lululemon", "title": 3, "to": "thats", "width": 0}, {"from": "lululemon", "title": 3, "to": "receive", "width": 0}, {"from": "lululemon", "title": 3, "to": "deal", "width": 0}, {"from": "lululemon", "title": 3, "to": "authorized", "width": 0}, {"from": "lululemon", "title": 3, "to": "gift", "width": 0}, {"from": "lululemon", "title": 3, "to": "comfy", "width": 0}, {"from": "lululemon", "title": 3, "to": "stuff", "width": 0}, {"from": "lululemon", "title": 3, "to": "item", "width": 0}, {"from": "lululemon", "title": 3, "to": "\ud83d\udd25", "width": 0}, {"from": "lululemon", "title": 3, "to": "water", "width": 0}, {"from": "lululemon", "title": 3, "to": "golf", "width": 0}, {"from": "lululemon", "title": 3, "to": "educator", "width": 0}, {"from": "lululemon", "title": 3, "to": "bottle", "width": 0}, {"from": "lululemon", "title": 2, "to": "show", "width": 0}, {"from": "lululemon", "title": 2, "to": "tdnewcomb", "width": 0}, {"from": "lululemon", "title": 2, "to": "experience", "width": 0}, {"from": "lululemon", "title": 2, "to": "nyc", "width": 0}, {"from": "lululemon", "title": 2, "to": "system", "width": 0}, {"from": "lululemon", "title": 2, "to": "working", "width": 0}, {"from": "lululemon", "title": 2, "to": "dress", "width": 0}, {"from": "lululemon", "title": 2, "to": "comfortable", "width": 0}, {"from": "lululemon", "title": 2, "to": "plenty", "width": 0}, {"from": "lululemon", "title": 2, "to": "book", "width": 0}, {"from": "lululemon", "title": 2, "to": "or", "width": 0}, {"from": "lululemon", "title": 2, "to": "ive", "width": 0}, {"from": "lululemon", "title": 2, "to": "tech", "width": 0}, {"from": "lululemon", "title": 2, "to": "maximized", "width": 0}, {"from": "lululemon", "title": 2, "to": "growing", "width": 0}, {"from": "lululemon", "title": 2, "to": "need", "width": 0}, {"from": "lululemon", "title": 2, "to": "online", "width": 0}, {"from": "lululemon", "title": 2, "to": "guided", "width": 0}, {"from": "lululemon", "title": 2, "to": "nah", "width": 0}, {"from": "lululemon", "title": 2, "to": "looking", "width": 0}, {"from": "lululemon", "title": 2, "to": "black", "width": 0}, {"from": "lululemon", "title": 2, "to": "shirt", "width": 0}, {"from": "lululemon", "title": 2, "to": "took", "width": 0}, {"from": "lululemon", "title": 2, "to": "guest", "width": 0}, {"from": "lululemon", "title": 2, "to": "buying", "width": 0}, {"from": "lululemon", "title": 2, "to": "changed", "width": 0}, {"from": "lululemon", "title": 2, "to": "healthier", "width": 0}, {"from": "lululemon", "title": 2, "to": "friday", "width": 0}, {"from": "lululemon", "title": 2, "to": "helped", "width": 0}, {"from": "lululemon", "title": 2, "to": "ny", "width": 0}, {"from": "lululemon", "title": 2, "to": "spend", "width": 0}, {"from": "lululemon", "title": 2, "to": "fitness", "width": 0}, {"from": "lululemon", "title": 2, "to": "x", "width": 0}, {"from": "lululemon", "title": 2, "to": "page", "width": 0}, {"from": "lululemon", "title": 2, "to": "low", "width": 0}, {"from": "lululemon", "title": 2, "to": "hoodies", "width": 0}, {"from": "lululemon", "title": 2, "to": "fast", "width": 0}, {"from": "lululemon", "title": 2, "to": "wanna", "width": 0}, {"from": "lululemon", "title": 2, "to": "woman", "width": 0}, {"from": "lululemon", "title": 2, "to": "nothing", "width": 0}, {"from": "lululemon", "title": 2, "to": "thechiefservant", "width": 0}, {"from": "lululemon", "title": 2, "to": "hobo", "width": 0}, {"from": "lululemon", "title": 2, "to": "made", "width": 0}, {"from": "lululemon", "title": 2, "to": "haroldpturd", "width": 0}, {"from": "lululemon", "title": 2, "to": "invited", "width": 0}, {"from": "nike", "title": 35, "to": "adidas", "width": 0}, {"from": "nike", "title": 50, "to": "nike", "width": 0}, {"from": "nike", "title": 408, "to": "rt", "width": 4}, {"from": "nike", "title": 157, "to": "day", "width": 1}, {"from": "nike", "title": 121, "to": "knight", "width": 1}, {"from": "nike", "title": 98, "to": "eneskanter", "width": 0}, {"from": "nike", "title": 95, "to": "jumpman23", "width": 0}, {"from": "nike", "title": 86, "to": "phil", "width": 0}, {"from": "nike", "title": 84, "to": "\ud83d\udd25", "width": 0}, {"from": "nike", "title": 82, "to": "kingjames", "width": 0}, {"from": "nike", "title": 82, "to": "\ufe0f", "width": 0}, {"from": "nike", "title": 73, "to": "china", "width": 0}, {"from": "nike", "title": 73, "to": "rtfktstudios", "width": 0}, {"from": "nike", "title": 70, "to": "air", "width": 0}, {"from": "nike", "title": 64, "to": "u", "width": 0}, {"from": "nike", "title": 59, "to": "x", "width": 0}, {"from": "nike", "title": 55, "to": "year", "width": 0}, {"from": "nike", "title": 53, "to": "fly", "width": 0}, {"from": "nike", "title": 52, "to": "try", "width": 0}, {"from": "nike", "title": 50, "to": "owner", "width": 0}, {"from": "nike", "title": 50, "to": "book", "width": 0}, {"from": "nike", "title": 49, "to": "lets", "width": 0}, {"from": "nike", "title": 49, "to": "ticket", "width": 0}, {"from": "nike", "title": 48, "to": "how", "width": 0}, {"from": "nike", "title": 48, "to": "plane", "width": 0}, {"from": "nike", "title": 47, "to": "nba", "width": 0}, {"from": "nike", "title": 46, "to": "online", "width": 0}, {"from": "nike", "title": 27, "to": "game", "width": 0}, {"from": "nike", "title": 45, "to": "new", "width": 0}, {"from": "nike", "title": 43, "to": "", "width": 0}, {"from": "nike", "title": 41, "to": "shoe", "width": 0}, {"from": "nike", "title": 40, "to": "brand", "width": 0}, {"from": "nike", "title": 39, "to": "dear", "width": 0}, {"from": "nike", "title": 38, "to": "modern", "width": 0}, {"from": "nike", "title": 38, "to": "age", "width": 0}, {"from": "nike", "title": 38, "to": "slavery", "width": 0}, {"from": "nike", "title": 38, "to": "enduyghurforcedlabor", "width": 0}, {"from": "nike", "title": 38, "to": "girl", "width": 0}, {"from": "nike", "title": 17, "to": "available", "width": 0}, {"from": "nike", "title": 37, "to": "today", "width": 0}, {"from": "nike", "title": 37, "to": "hypocritenike", "width": 0}, {"from": "nike", "title": 37, "to": "stop", "width": 0}, {"from": "nike", "title": 36, "to": "solefed", "width": 0}, {"from": "nike", "title": 36, "to": "metaverse", "width": 0}, {"from": "nike", "title": 36, "to": "ring", "width": 0}, {"from": "nike", "title": 34, "to": "yr", "width": 0}, {"from": "nike", "title": 34, "to": "born", "width": 0}, {"from": "nike", "title": 33, "to": "sport", "width": 0}, {"from": "nike", "title": 33, "to": "daansahonsports", "width": 0}, {"from": "nike", "title": 33, "to": "mcdonalds", "width": 0}, {"from": "nike", "title": 32, "to": "company", "width": 0}, {"from": "nike", "title": 32, "to": "sneaker", "width": 0}, {"from": "nike", "title": 30, "to": "low", "width": 0}, {"from": "nike", "title": 29, "to": "get", "width": 0}, {"from": "nike", "title": 29, "to": "purchase", "width": 0}, {"from": "nike", "title": 29, "to": "sea", "width": 0}, {"from": "nike", "title": 28, "to": "\u2060", "width": 0}, {"from": "nike", "title": 28, "to": "latest", "width": 0}, {"from": "nike", "title": 27, "to": "win", "width": 0}, {"from": "nike", "title": 27, "to": "virtual", "width": 0}, {"from": "nike", "title": 26, "to": "go", "width": 0}, {"from": "nike", "title": 19, "to": "dark", "width": 0}, {"from": "nike", "title": 26, "to": "top", "width": 0}, {"from": "nike", "title": 26, "to": "point", "width": 0}, {"from": "nike", "title": 25, "to": "bday", "width": 0}, {"from": "nike", "title": 25, "to": "style", "width": 0}, {"from": "nike", "title": 24, "to": "deal", "width": 0}, {"from": "nike", "title": 24, "to": "good", "width": 0}, {"from": "nike", "title": 24, "to": "partnership", "width": 0}, {"from": "nike", "title": 24, "to": "womens", "width": 0}, {"from": "nike", "title": 24, "to": "time", "width": 0}, {"from": "nike", "title": 24, "to": "lebron", "width": 0}, {"from": "nike", "title": 23, "to": "\ud83d\udc40", "width": 0}, {"from": "nike", "title": 23, "to": "netflix", "width": 0}, {"from": "nike", "title": 22, "to": "king", "width": 0}, {"from": "nike", "title": 23, "to": "shop", "width": 0}, {"from": "nike", "title": 22, "to": "gucci", "width": 0}, {"from": "nike", "title": 22, "to": "visit", "width": 0}, {"from": "nike", "title": 22, "to": "store", "width": 0}, {"from": "nike", "title": 22, "to": "\ud83d\udc5f", "width": 0}, {"from": "nike", "title": 22, "to": "\u2022", "width": 0}, {"from": "nike", "title": 22, "to": "dunk", "width": 0}, {"from": "nike", "title": 22, "to": "kobebryant", "width": 0}, {"from": "nike", "title": 22, "to": "jordan", "width": 0}, {"from": "nike", "title": 22, "to": "usnikefootball", "width": 0}, {"from": "nike", "title": 22, "to": "digital", "width": 0}, {"from": "nike", "title": 21, "to": "undefeated", "width": 0}, {"from": "nike", "title": 21, "to": "team", "width": 0}, {"from": "nike", "title": 21, "to": "sign", "width": 0}, {"from": "nike", "title": 21, "to": "\ud83d\udcf2", "width": 0}, {"from": "nike", "title": 21, "to": "cst", "width": 0}, {"from": "nike", "title": 21, "to": "rv", "width": 0}, {"from": "nike", "title": 21, "to": "look", "width": 0}, {"from": "nike", "title": 21, "to": "mj", "width": 0}, {"from": "nike", "title": 21, "to": "starbucks", "width": 0}, {"from": "nike", "title": 21, "to": "need", "width": 0}, {"from": "nike", "title": 21, "to": "say", "width": 0}, {"from": "nike", "title": 21, "to": "force", "width": 0}, {"from": "nike", "title": 21, "to": "nikes", "width": 0}, {"from": "nike", "title": 20, "to": "max", "width": 0}, {"from": "nike", "title": 20, "to": "xbox", "width": 0}, {"from": "nike", "title": 20, "to": "snipesusa", "width": 0}, {"from": "nike", "title": 20, "to": "im", "width": 0}, {"from": "nike", "title": 19, "to": "starburst", "width": 0}, {"from": "nike", "title": 19, "to": "james", "width": 0}, {"from": "nike", "title": 19, "to": "size", "width": 0}, {"from": "nike", "title": 19, "to": "skittles", "width": 0}, {"from": "nike", "title": 19, "to": "oreo", "width": 0}, {"from": "nike", "title": 19, "to": "subway", "width": 0}, {"from": "nike", "title": 19, "to": "iconic", "width": 0}, {"from": "nike", "title": 19, "to": "xboxsupport", "width": 0}, {"from": "nike", "title": 19, "to": "playstation", "width": 0}, {"from": "nike", "title": 19, "to": "ronwyden", "width": 0}, {"from": "nike", "title": 19, "to": "know", "width": 0}, {"from": "nike", "title": 19, "to": "instore", "width": 0}, {"from": "nike", "title": 19, "to": "burgerking", "width": 0}, {"from": "nike", "title": 19, "to": "last", "width": 0}, {"from": "nike", "title": 19, "to": "pair", "width": 0}, {"from": "nike", "title": 19, "to": "\u203c", "width": 0}, {"from": "nike", "title": 19, "to": "morrisons", "width": 0}, {"from": "nike", "title": 19, "to": "lidlgb", "width": 0}, {"from": "nike", "title": 19, "to": "aldiuk", "width": 0}, {"from": "nike", "title": 19, "to": "asda", "width": 0}, {"from": "nike", "title": 19, "to": "tesco", "width": 0}, {"from": "nike", "title": 19, "to": "samsungmobile", "width": 0}, {"from": "nike", "title": 18, "to": "snipesknows", "width": 0}, {"from": "nike", "title": 18, "to": "want", "width": 0}, {"from": "nike", "title": 18, "to": "got", "width": 0}, {"from": "nike", "title": 18, "to": "athlete", "width": 0}, {"from": "nike", "title": 18, "to": "mark", "width": 0}, {"from": "nike", "title": 17, "to": "\ud83d\ude4c", "width": 0}, {"from": "nike", "title": 17, "to": "v", "width": 0}, {"from": "nike", "title": 17, "to": "fancymustachetv", "width": 0}, {"from": "nike", "title": 17, "to": "see", "width": 0}, {"from": "nike", "title": 17, "to": "made", "width": 0}, {"from": "nike", "title": 17, "to": "uno", "width": 0}, {"from": "nike", "title": 16, "to": "anniversary", "width": 0}, {"from": "nike", "title": 16, "to": "adidasoriginals", "width": 0}, {"from": "nike", "title": 16, "to": "\ud83d\udea8", "width": 0}, {"from": "nike", "title": 16, "to": "help", "width": 0}, {"from": "nike", "title": 16, "to": "gm", "width": 0}, {"from": "nike", "title": 16, "to": "mens", "width": 0}, {"from": "nike", "title": 16, "to": "campaign", "width": 0}, {"from": "nike", "title": 16, "to": "thank", "width": 0}, {"from": "nike", "title": 16, "to": "no", "width": 0}, {"from": "adidas", "title": 45, "to": "adidas", "width": 0}, {"from": "adidas", "title": 118, "to": "rt", "width": 1}, {"from": "adidas", "title": 92, "to": "xbox", "width": 0}, {"from": "adidas", "title": 17, "to": "x", "width": 0}, {"from": "adidas", "title": 44, "to": "\ufe0f", "width": 0}, {"from": "adidas", "title": 29, "to": "adidasoriginals", "width": 0}, {"from": "adidas", "title": 24, "to": "\ud83d\udc40", "width": 0}, {"from": "adidas", "title": 23, "to": "beyonce", "width": 0}, {"from": "adidas", "title": 21, "to": "\ud83d\udd25", "width": 0}, {"from": "adidas", "title": 20, "to": "yeezy", "width": 0}, {"from": "adidas", "title": 20, "to": "pair", "width": 0}, {"from": "adidas", "title": 20, "to": "get", "width": 0}, {"from": "adidas", "title": 12, "to": "new", "width": 0}, {"from": "adidas", "title": 14, "to": "available", "width": 0}, {"from": "adidas", "title": 19, "to": "solesavy", "width": 0}, {"from": "adidas", "title": 19, "to": "", "width": 0}, {"from": "adidas", "title": 19, "to": "\u2060", "width": 0}, {"from": "adidas", "title": 18, "to": "gucci", "width": 0}, {"from": "adidas", "title": 17, "to": "skittles", "width": 0}, {"from": "adidas", "title": 17, "to": "mcdonalds", "width": 0}, {"from": "adidas", "title": 17, "to": "samsungmobile", "width": 0}, {"from": "adidas", "title": 17, "to": "playstation", "width": 0}, {"from": "adidas", "title": 17, "to": "xboxsupport", "width": 0}, {"from": "adidas", "title": 17, "to": "starbucks", "width": 0}, {"from": "adidas", "title": 17, "to": "oreo", "width": 0}, {"from": "adidas", "title": 17, "to": "asda", "width": 0}, {"from": "adidas", "title": 17, "to": "netflix", "width": 0}, {"from": "adidas", "title": 17, "to": "tesco", "width": 0}, {"from": "adidas", "title": 17, "to": "aldiuk", "width": 0}, {"from": "adidas", "title": 17, "to": "lidlgb", "width": 0}, {"from": "adidas", "title": 17, "to": "morrisons", "width": 0}, {"from": "adidas", "title": 17, "to": "starburst", "width": 0}, {"from": "adidas", "title": 17, "to": "u", "width": 0}, {"from": "adidas", "title": 17, "to": "im", "width": 0}, {"from": "adidas", "title": 17, "to": "subway", "width": 0}, {"from": "adidas", "title": 16, "to": "year", "width": 0}, {"from": "adidas", "title": 16, "to": "jersey", "width": 0}, {"from": "adidas", "title": 16, "to": "brand", "width": 0}, {"from": "adidas", "title": 15, "to": "forum", "width": 0}, {"from": "adidas", "title": 15, "to": "shop", "width": 0}, {"from": "adidas", "title": 15, "to": "online", "width": 0}, {"from": "adidas", "title": 15, "to": "fancymustachetv", "width": 0}, {"from": "adidas", "title": 14, "to": "size", "width": 0}, {"from": "adidas", "title": 14, "to": "burgerking", "width": 0}, {"from": "adidas", "title": 14, "to": "boredapeyc", "width": 0}, {"from": "adidas", "title": 14, "to": "boost", "width": 0}, {"from": "adidas", "title": 14, "to": "shoe", "width": 0}, {"from": "adidas", "title": 14, "to": "\ud83d\udc5f", "width": 0}, {"from": "adidas", "title": 14, "to": "win", "width": 0}, {"from": "adidas", "title": 14, "to": "lagalaxy", "width": 0}, {"from": "adidas", "title": 13, "to": "purchase", "width": 0}, {"from": "adidas", "title": 13, "to": "style", "width": 0}, {"from": "adidas", "title": 13, "to": "chance", "width": 0}, {"from": "adidas", "title": 12, "to": "impossibleisnothing", "width": 0}, {"from": "adidas", "title": 12, "to": "love", "width": 0}, {"from": "adidas", "title": 12, "to": "sneaker", "width": 0}, {"from": "adidas", "title": 12, "to": "including", "width": 0}, {"from": "adidas", "title": 12, "to": "\ud83d\udc9a", "width": 0}, {"from": "adidas", "title": 12, "to": "weareivypark", "width": 0}, {"from": "adidas", "title": 12, "to": "release", "width": 0}, {"from": "adidas", "title": 11, "to": "want", "width": 0}, {"from": "adidas", "title": 11, "to": "ivy", "width": 0}, {"from": "adidas", "title": 11, "to": "thank", "width": 0}, {"from": "adidas", "title": 11, "to": "la", "width": 0}, {"from": "adidas", "title": 11, "to": "thanks", "width": 0}, {"from": "adidas", "title": 11, "to": "hotpockets", "width": 0}, {"from": "adidas", "title": 11, "to": "\u2018", "width": 0}, {"from": "adidas", "title": 10, "to": "good", "width": 0}, {"from": "adidas", "title": 10, "to": "blazepizza", "width": 0}, {"from": "adidas", "title": 10, "to": "were", "width": 0}, {"from": "adidas", "title": 10, "to": "justfit", "width": 0}, {"from": "adidas", "title": 10, "to": "look", "width": 0}, {"from": "adidas", "title": 10, "to": "kick", "width": 0}, {"from": "adidas", "title": 10, "to": "today", "width": 0}, {"from": "adidas", "title": 10, "to": "visit", "width": 0}, {"from": "adidas", "title": 10, "to": "baitme", "width": 0}, {"from": "adidas", "title": 10, "to": "snipesusa", "width": 0}, {"from": "adidas", "title": 10, "to": "day", "width": 0}, {"from": "adidas", "title": 10, "to": "thetraeyoung", "width": 0}, {"from": "adidas", "title": 9, "to": "collection", "width": 0}, {"from": "adidas", "title": 9, "to": "season", "width": 0}, {"from": "adidas", "title": 9, "to": "drop", "width": 0}, {"from": "adidas", "title": 9, "to": "latest", "width": 0}, {"from": "adidas", "title": 9, "to": "generation", "width": 0}, {"from": "adidas", "title": 9, "to": "austinekeler", "width": 0}, {"from": "adidas", "title": 9, "to": "exclusive", "width": 0}, {"from": "adidas", "title": 9, "to": "kit", "width": 0}, {"from": "adidas", "title": 9, "to": "check", "width": 0}, {"from": "adidas", "title": 9, "to": "program", "width": 0}, {"from": "adidas", "title": 9, "to": "store", "width": 0}, {"from": "adidas", "title": 9, "to": "\u2764", "width": 0}, {"from": "adidas", "title": 9, "to": "got", "width": 0}, {"from": "adidas", "title": 8, "to": "say", "width": 0}, {"from": "adidas", "title": 8, "to": "snipesknows", "width": 0}, {"from": "adidas", "title": 8, "to": "player", "width": 0}, {"from": "adidas", "title": 8, "to": "mls", "width": 0}, {"from": "adidas", "title": 8, "to": "\ud83d\ude0d", "width": 0}, {"from": "adidas", "title": 8, "to": "saturday", "width": 0}, {"from": "adidas", "title": 6, "to": "so", "width": 0}, {"from": "adidas", "title": 8, "to": "follow", "width": 0}, {"from": "adidas", "title": 8, "to": "tech", "width": 0}, {"from": "adidas", "title": 8, "to": "app", "width": 0}, {"from": "adidas", "title": 8, "to": "top", "width": 0}, {"from": "adidas", "title": 8, "to": "xbox20", "width": 0}, {"from": "adidas", "title": 8, "to": "\u27a1", "width": 0}, {"from": "adidas", "title": 8, "to": "\ud83d\udc99", "width": 0}, {"from": "adidas", "title": 7, "to": "inspire", "width": 0}, {"from": "adidas", "title": 7, "to": "make", "width": 0}, {"from": "adidas", "title": 7, "to": "getting", "width": 0}, {"from": "adidas", "title": 7, "to": "maybes", "width": 0}, {"from": "adidas", "title": 7, "to": "see", "width": 0}, {"from": "adidas", "title": 7, "to": "\u2066", "width": 0}, {"from": "adidas", "title": 7, "to": "\u2069", "width": 0}, {"from": "adidas", "title": 7, "to": "take", "width": 0}, {"from": "adidas", "title": 7, "to": "way", "width": 0}, {"from": "adidas", "title": 7, "to": "\ud83d\ude4c", "width": 0}, {"from": "adidas", "title": 7, "to": "read", "width": 0}, {"from": "adidas", "title": 7, "to": "park", "width": 0}, {"from": "adidas", "title": 7, "to": "ad", "width": 0}, {"from": "adidas", "title": 7, "to": "collab", "width": 0}, {"from": "adidas", "title": 7, "to": "\ud83d\udcf8", "width": 0}, {"from": "adidas", "title": 7, "to": "shopwss", "width": 0}, {"from": "adidas", "title": 7, "to": "gmoneynft", "width": 0}, {"from": "adidas", "title": 7, "to": "listen", "width": 0}, {"from": "adidas", "title": 7, "to": "\ud83e\udd29", "width": 0}, {"from": "adidas", "title": 7, "to": "time", "width": 0}, {"from": "adidas", "title": 6, "to": "dylanorreli", "width": 0}, {"from": "adidas", "title": 6, "to": "mitchell", "width": 0}, {"from": "adidas", "title": 6, "to": "nov", "width": 0}, {"from": "adidas", "title": 6, "to": "instore", "width": 0}, {"from": "adidas", "title": 6, "to": "adidashoops", "width": 0}, {"from": "adidas", "title": 6, "to": "nba", "width": 0}, {"from": "adidas", "title": 6, "to": "design", "width": 0}, {"from": "adidas", "title": 6, "to": "month", "width": 0}, {"from": "adidas", "title": 6, "to": "\ud83d\udea8", "width": 0}, {"from": "adidas", "title": 6, "to": "court", "width": 0}, {"from": "adidas", "title": 6, "to": "stay", "width": 0}, {"from": "adidas", "title": 6, "to": "send", "width": 0}, {"from": "adidas", "title": 6, "to": "kevwuzy", "width": 0}, {"from": "adidas", "title": 6, "to": "punkscomic", "width": 0}, {"from": "adidas", "title": 6, "to": "long", "width": 0}, {"from": "adidas", "title": 6, "to": "opening", "width": 0}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": false,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+                  // if this network requires displaying the configure window,
+                  // put it in its div
+                  options.configure["container"] = document.getElementById("config");
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

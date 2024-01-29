@@ -1,0 +1,364 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 1600;
+                 height: 1200;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+             #config {
+                 float: left;
+                 width: 400px;
+                 height: 600px;
+             }
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+            <div id="config"></div>
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "id": "ktierney47", "label": "ktierney47", "shape": "dot", "size": 10}, {"group": 1, "id": "lululemon", "label": "lululemon", "shape": "dot", "size": 35}, {"color": "#97c2fc", "id": "TheBus35", "label": "TheBus35", "shape": "dot", "size": 10}, {"group": 3, "id": "adidas", "label": "adidas", "shape": "dot", "size": 35}, {"group": 2, "id": "nike", "label": "nike", "shape": "dot", "size": 35}, {"color": "#97c2fc", "id": "foodandcrafts", "label": "foodandcrafts", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "SHREDDER2013", "label": "SHREDDER2013", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "GetTheCynsation", "label": "GetTheCynsation", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ThatGirlA_Thug", "label": "ThatGirlA_Thug", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "AllianaSabrina", "label": "AllianaSabrina", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "IVnext", "label": "IVnext", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "LibmanDot", "label": "LibmanDot", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "GQPrTerriorists", "label": "GQPrTerriorists", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "alexchan200877", "label": "alexchan200877", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "jesseross_10", "label": "jesseross_10", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "RickyOtazu16", "label": "RickyOtazu16", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "datboydriving", "label": "datboydriving", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "SJVenuto", "label": "SJVenuto", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "PoshGordon", "label": "PoshGordon", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "0nBrokenWings", "label": "0nBrokenWings", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "notaxplz_", "label": "notaxplz_", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "clayton_warrior", "label": "clayton_warrior", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "madmilker", "label": "madmilker", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "bigmommaNIK", "label": "bigmommaNIK", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "DylanJames1k", "label": "DylanJames1k", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "stevewill82420", "label": "stevewill82420", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Con_CitizenX", "label": "Con_CitizenX", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "weiss_mj", "label": "weiss_mj", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Arodriguez19", "label": "Arodriguez19", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "imJVZEL", "label": "imJVZEL", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "daniel14davison", "label": "daniel14davison", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "PrussianBot2020", "label": "PrussianBot2020", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "tonyedl", "label": "tonyedl", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "CabbitDesigns", "label": "CabbitDesigns", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Born_In_Da_90s", "label": "Born_In_Da_90s", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "K412jones", "label": "K412jones", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "thegr8estnever1", "label": "thegr8estnever1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "energyElle", "label": "energyElle", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Anon1KENYA", "label": "Anon1KENYA", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Cobra611", "label": "Cobra611", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "jhawkcat", "label": "jhawkcat", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "corp_tyrell", "label": "corp_tyrell", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "cleepip", "label": "cleepip", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "catmann3200", "label": "catmann3200", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "TheodoreRoosev8", "label": "TheodoreRoosev8", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mark_Scherer60", "label": "Mark_Scherer60", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "tapitts2", "label": "tapitts2", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "jaichele70", "label": "jaichele70", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "stepserb", "label": "stepserb", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "jonjscj04", "label": "jonjscj04", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "davidwebbshow", "label": "davidwebbshow", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Moncrief102", "label": "Moncrief102", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Question_things", "label": "Question_things", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Sledpulled", "label": "Sledpulled", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ags_win", "label": "Ags_win", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "billperryman", "label": "billperryman", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "93DonSmith99", "label": "93DonSmith99", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "NikkiGilday", "label": "NikkiGilday", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ladyndewgreen88", "label": "ladyndewgreen88", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "KLoYo77", "label": "KLoYo77", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Troutprophet", "label": "Troutprophet", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "paogle", "label": "paogle", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "KingzMindst8", "label": "KingzMindst8", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "RCannon74", "label": "RCannon74", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "RingsBrady6", "label": "RingsBrady6", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "JoyceBruns", "label": "JoyceBruns", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Texas_cowboy1", "label": "Texas_cowboy1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ChuziChips", "label": "ChuziChips", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "EpochTimes", "label": "EpochTimes", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "MrHartwell207", "label": "MrHartwell207", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "SayNoToVax", "label": "SayNoToVax", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "darkdust101", "label": "darkdust101", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "markmurray21", "label": "markmurray21", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Allen548689", "label": "Allen548689", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ILoveKindness2", "label": "ILoveKindness2", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "DocStrange408", "label": "DocStrange408", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "farewelltoSodom", "label": "farewelltoSodom", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Kicksburner316", "label": "Kicksburner316", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "brian_m40", "label": "brian_m40", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "MisterSchnoz", "label": "MisterSchnoz", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "JamesSager", "label": "JamesSager", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "sianetta", "label": "sianetta", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "KeLs2theBeLs", "label": "KeLs2theBeLs", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "WestCoastCubby", "label": "WestCoastCubby", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "BostonTrucker1", "label": "BostonTrucker1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "C130GuyBNA", "label": "C130GuyBNA", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "_ztackett", "label": "_ztackett", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Rlweinreb", "label": "Rlweinreb", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "pcisbs1", "label": "pcisbs1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "vithekitty", "label": "vithekitty", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "RDagnello", "label": "RDagnello", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "MolokoDrenchrom", "label": "MolokoDrenchrom", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Miss_NicciC", "label": "Miss_NicciC", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "robdocs", "label": "robdocs", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "titi0401_me", "label": "titi0401_me", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ndngenuity", "label": "ndngenuity", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "FatMIKE8800", "label": "FatMIKE8800", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "KeyontheDon", "label": "KeyontheDon", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "3rdEyeZoe", "label": "3rdEyeZoe", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "King_kicks19", "label": "King_kicks19", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "NikonShooter94", "label": "NikonShooter94", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Lety0726", "label": "Lety0726", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "IAMANANI", "label": "IAMANANI", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Bacon74199432", "label": "Bacon74199432", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "press4change", "label": "press4change", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fantasticlegs", "label": "fantasticlegs", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "itsmejavier", "label": "itsmejavier", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "zen_masstah", "label": "zen_masstah", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "JeepFreedom", "label": "JeepFreedom", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "thebobaccount", "label": "thebobaccount", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "tonitheteach", "label": "tonitheteach", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "itsmedavidt", "label": "itsmedavidt", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Okavangomick", "label": "Okavangomick", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "tulaholmes", "label": "tulaholmes", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fwflacko", "label": "fwflacko", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Nesto94__", "label": "Nesto94__", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Traxxas1080", "label": "Traxxas1080", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "SphereByMilan", "label": "SphereByMilan", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "JohnnyTokesShow", "label": "JohnnyTokesShow", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "rishabh_uxd", "label": "rishabh_uxd", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "countertenor49", "label": "countertenor49", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "TheSportsIndex", "label": "TheSportsIndex", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "massivetaker", "label": "massivetaker", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "OTMOPTIONTWIT", "label": "OTMOPTIONTWIT", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Da3rdAndOnly", "label": "Da3rdAndOnly", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Drmenol", "label": "Drmenol", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "LazyyReader", "label": "LazyyReader", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "MadMimi3", "label": "MadMimi3", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "breezybryz", "label": "breezybryz", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "gerardotheactor", "label": "gerardotheactor", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "mrogerson", "label": "mrogerson", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "GAmerica55", "label": "GAmerica55", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "bluzguitar", "label": "bluzguitar", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "LoverBoyVon_", "label": "LoverBoyVon_", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "allaboutdbooyah", "label": "allaboutdbooyah", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "jsholt1", "label": "jsholt1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "sshooole", "label": "sshooole", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mann_O_Steel17", "label": "Mann_O_Steel17", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Scientist20211", "label": "Scientist20211", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "CowboyKeeks", "label": "CowboyKeeks", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "boredandtired94", "label": "boredandtired94", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ntblmncereus", "label": "ntblmncereus", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "iDream_Of_Nikki", "label": "iDream_Of_Nikki", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "buckmurray1", "label": "buckmurray1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "RFrey1", "label": "RFrey1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "6THSENSE_3RDEYE", "label": "6THSENSE_3RDEYE", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "paul_s_haney", "label": "paul_s_haney", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "whoa1618w", "label": "whoa1618w", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "93Allante", "label": "93Allante", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Folk718", "label": "Folk718", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "juice107j", "label": "juice107j", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "jtgirl5", "label": "jtgirl5", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "lopit0z", "label": "lopit0z", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ItzCarterz", "label": "ItzCarterz", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "DanSileoShow", "label": "DanSileoShow", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Longin4Reagan", "label": "Longin4Reagan", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "olesart", "label": "olesart", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "OfficialRedSide", "label": "OfficialRedSide", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ShellzJG88", "label": "ShellzJG88", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "_Kwick", "label": "_Kwick", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "perkybadboy5000", "label": "perkybadboy5000", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "justjanejarvis1", "label": "justjanejarvis1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "BrittfieldBeats", "label": "BrittfieldBeats", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Talyan33", "label": "Talyan33", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "cynvicioustm", "label": "cynvicioustm", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "DjPompeygb", "label": "DjPompeygb", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "MrSoILL", "label": "MrSoILL", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "GoHomeRogers", "label": "GoHomeRogers", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "STRONGMANLANCE", "label": "STRONGMANLANCE", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "CaptnDad8", "label": "CaptnDad8", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "kyledingledine", "label": "kyledingledine", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "MoparRell_", "label": "MoparRell_", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "HUMBLED357", "label": "HUMBLED357", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Me_N_My6", "label": "Me_N_My6", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Real_Big_Dirty", "label": "Real_Big_Dirty", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "SirPiff24", "label": "SirPiff24", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "coachtorino", "label": "coachtorino", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "JSNWNSTNLY", "label": "JSNWNSTNLY", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Luciana11113", "label": "Luciana11113", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "PhilOutsider", "label": "PhilOutsider", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "marcomac20", "label": "marcomac20", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "KobeZhou24", "label": "KobeZhou24", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "DebonairBuck", "label": "DebonairBuck", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "DoBetterBB", "label": "DoBetterBB", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "x_DIAZ_x", "label": "x_DIAZ_x", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jerry69USA", "label": "Jerry69USA", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "YNWA_6_times", "label": "YNWA_6_times", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "OfficialDimss", "label": "OfficialDimss", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "EnesFreedom", "label": "EnesFreedom", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ted_huang", "label": "ted_huang", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "JimPierce2024", "label": "JimPierce2024", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "TonySoFla", "label": "TonySoFla", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "randomceo101", "label": "randomceo101", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "dedrickbrooksjr", "label": "dedrickbrooksjr", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jarronxo", "label": "Jarronxo", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "_AshBash", "label": "_AshBash", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "1Emil_", "label": "1Emil_", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "MeowMeowCapital", "label": "MeowMeowCapital", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "2Shanez", "label": "2Shanez", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "JerzeeBoii", "label": "JerzeeBoii", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Gucci_LU_", "label": "Gucci_LU_", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "TherealNoncents", "label": "TherealNoncents", "shape": "dot", "size": 10}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "ktierney47", "title": 1, "to": "lululemon", "width": 1}, {"arrows": "to", "from": "TheBus35", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "TheBus35", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "foodandcrafts", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "foodandcrafts", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "SHREDDER2013", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "GetTheCynsation", "title": 2, "to": "adidas", "width": 1}, {"arrows": "to", "from": "ThatGirlA_Thug", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "AllianaSabrina", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "IVnext", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "IVnext", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "LibmanDot", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "GQPrTerriorists", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "alexchan200877", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "jesseross_10", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "RickyOtazu16", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "datboydriving", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "SJVenuto", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "PoshGordon", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "0nBrokenWings", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "notaxplz_", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "notaxplz_", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "clayton_warrior", "title": 1, "to": "adidas", "width": 1}, {"arrows": "to", "from": "madmilker", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "bigmommaNIK", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "DylanJames1k", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "stevewill82420", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Con_CitizenX", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "weiss_mj", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Arodriguez19", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "imJVZEL", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "daniel14davison", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "PrussianBot2020", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "tonyedl", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "CabbitDesigns", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Born_In_Da_90s", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "K412jones", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "thegr8estnever1", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "energyElle", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Anon1KENYA", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Cobra611", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "jhawkcat", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "corp_tyrell", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "cleepip", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "catmann3200", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "TheodoreRoosev8", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Mark_Scherer60", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "tapitts2", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "jaichele70", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "stepserb", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "jonjscj04", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "davidwebbshow", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Moncrief102", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Question_things", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Sledpulled", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Ags_win", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "billperryman", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "93DonSmith99", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "NikkiGilday", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "ladyndewgreen88", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "KLoYo77", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Troutprophet", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "paogle", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "KingzMindst8", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "RCannon74", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "RingsBrady6", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "JoyceBruns", "title": 3, "to": "nike", "width": 1}, {"arrows": "to", "from": "Texas_cowboy1", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "ChuziChips", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "EpochTimes", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "MrHartwell207", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "SayNoToVax", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "darkdust101", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "markmurray21", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Allen548689", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "ILoveKindness2", "title": 6, "to": "nike", "width": 2}, {"arrows": "to", "from": "DocStrange408", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "farewelltoSodom", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Kicksburner316", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "brian_m40", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "MisterSchnoz", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "JamesSager", "title": 2, "to": "nike", "width": 1}, {"arrows": "to", "from": "sianetta", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "KeLs2theBeLs", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "WestCoastCubby", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "BostonTrucker1", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "C130GuyBNA", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "_ztackett", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Rlweinreb", "title": 2, "to": "nike", "width": 1}, {"arrows": "to", "from": "pcisbs1", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "vithekitty", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "RDagnello", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "MolokoDrenchrom", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Miss_NicciC", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "robdocs", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "titi0401_me", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "ndngenuity", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "FatMIKE8800", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "KeyontheDon", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "3rdEyeZoe", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "King_kicks19", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "NikonShooter94", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Lety0726", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "IAMANANI", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Bacon74199432", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "press4change", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "fantasticlegs", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "itsmejavier", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "zen_masstah", "title": 5, "to": "nike", "width": 2}, {"arrows": "to", "from": "JeepFreedom", "title": 5, "to": "nike", "width": 2}, {"arrows": "to", "from": "thebobaccount", "title": 2, "to": "nike", "width": 1}, {"arrows": "to", "from": "tonitheteach", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "itsmedavidt", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Okavangomick", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "tulaholmes", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "fwflacko", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Nesto94__", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Traxxas1080", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "SphereByMilan", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "JohnnyTokesShow", "title": 3, "to": "nike", "width": 1}, {"arrows": "to", "from": "rishabh_uxd", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "countertenor49", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "TheSportsIndex", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "massivetaker", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "OTMOPTIONTWIT", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Da3rdAndOnly", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Drmenol", "title": 2, "to": "nike", "width": 1}, {"arrows": "to", "from": "LazyyReader", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "MadMimi3", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "breezybryz", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "gerardotheactor", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "mrogerson", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "GAmerica55", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "bluzguitar", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "LoverBoyVon_", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "allaboutdbooyah", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "jsholt1", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "sshooole", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Mann_O_Steel17", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Scientist20211", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "CowboyKeeks", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "boredandtired94", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "ntblmncereus", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "iDream_Of_Nikki", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "buckmurray1", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "RFrey1", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "6THSENSE_3RDEYE", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "paul_s_haney", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "whoa1618w", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "93Allante", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Folk718", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "juice107j", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "jtgirl5", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "lopit0z", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "ItzCarterz", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "DanSileoShow", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Longin4Reagan", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "olesart", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "OfficialRedSide", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "ShellzJG88", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "_Kwick", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "perkybadboy5000", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "justjanejarvis1", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "BrittfieldBeats", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Talyan33", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "cynvicioustm", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "DjPompeygb", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "MrSoILL", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "GoHomeRogers", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "STRONGMANLANCE", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "CaptnDad8", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "kyledingledine", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "MoparRell_", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "HUMBLED357", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Me_N_My6", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Real_Big_Dirty", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "SirPiff24", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "coachtorino", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "JSNWNSTNLY", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Luciana11113", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "PhilOutsider", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "marcomac20", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "KobeZhou24", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "DebonairBuck", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "DoBetterBB", "title": 2, "to": "nike", "width": 1}, {"arrows": "to", "from": "x_DIAZ_x", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Jerry69USA", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "YNWA_6_times", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "OfficialDimss", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "EnesFreedom", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "ted_huang", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "JimPierce2024", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "TonySoFla", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "randomceo101", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "dedrickbrooksjr", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Jarronxo", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "_AshBash", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "1Emil_", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "MeowMeowCapital", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "2Shanez", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "JerzeeBoii", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "Gucci_LU_", "title": 1, "to": "nike", "width": 1}, {"arrows": "to", "from": "TherealNoncents", "title": 1, "to": "nike", "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": false,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+                  // if this network requires displaying the configure window,
+                  // put it in its div
+                  options.configure["container"] = document.getElementById("config");
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

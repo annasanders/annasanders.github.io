@@ -22,6 +22,11 @@ Project analyzing John Hopkins University global COVID data. The first part of t
 #### [Master's Degrees Awarded in Colorado]({{site.url}}/ms_projects/dtsa5304_mastersdeg)
 Project visualizing Master's degrees awarded in the state of Colorado from 2001-2017. The visualization was built in Altair and is interactive, both via the bottom degree program filter and on each individual plot legend. This page includes an interactive visualization!
 
+### DTSA 5800 - Network Analysis (🐍 Python)
+
+#### [Building Network Graphs for Twitter Data]({{site.url}}/ms_projects/dtsa5800_tweets)
+Using twitter tweets (from a json file), mentions, and users to create various user networks and semantic networks. Final project for Network Analysis class.
+
 ### DTSA 5506 - Data Mining Project (🐍 Python)
 
 #### [Ask A Manager Salary Survey Data Pipeline Project]({{site.url}}/ms_projects/dtsa5506_aamsurvey)
