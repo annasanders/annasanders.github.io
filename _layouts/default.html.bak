@@ -2,9 +2,7 @@
 <html lang="{{ page.lang | default: site.lang | default: "en" }}">
 <link href="/css/pygments.css" rel="stylesheet">
   <head>
-  {%- if site.google_analytics -%}
   {%- include analytics.html -%}
-  {%- endif -%}
   
   {%- include head.html -%}
   </head>
