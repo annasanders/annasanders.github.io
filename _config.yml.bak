@@ -47,7 +47,7 @@ highlighter: rouge
 #  - jekyll-feed
 
 # Google Analytics
-# google_analytics: G-WX9V3WC0P3
+google_analytics: G-WX9V3WC0P3
 
 # Exclude from processing.
 # The following items will not be processed, by default.
