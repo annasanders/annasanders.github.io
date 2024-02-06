@@ -28,11 +28,11 @@ github_username:  annasanders
 linkedin_username: anna-sanders-6610aa162
 
 # Build settings
-#theme: minima
-remote_theme: jekyll/minima
+theme: minima
+#remote_theme: jekyll/minima
 
-plugins:
-- jekyll-remote-theme
+#plugins:
+#- jekyll-remote-theme
 
 # Header
 header_pages:
