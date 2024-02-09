@@ -24,7 +24,7 @@ title: 🦕 Welcome to my Website!
 
 **Dashboard:** I have a working R Shiny App based off of my favorite Video Game Series: Pokémon. Find the link and code [here!]({{ site.url }}/r/pkmn_dshbrd). It's not up to do date right now (so many new Pokémon!), but it is a functional dashboard.
 
-**ML Project (Supervised and Unsupervised):** Take a look at my final project for the Data Mining Project class [here!]({{ site.url }}/ms_projects/dsta5506_aamsurvey)
+**ML Project (Supervised and Unsupervised):** Take a look at my final project for the Data Mining Project class [here!]({{ site.url }}/ms_projects/dtsa5506_aamsurvey)
 
 **Deep Learning Projects:** It took a lot of time and tutorial reading, but I have completed multiple Kaggle competitions using neural networks! Find theme [here!]({{ site.url }}/ms_projects)
 
