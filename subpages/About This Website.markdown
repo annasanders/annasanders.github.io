@@ -250,6 +250,12 @@ Which is the HTML element:
 
 **Note:** you may need to do some extra website style fiddling to stop minima from forcing in its default syntax highlighting. 
 
+## How'd You Get the 🦕 Icon?
+Dinosaurs make things better. Having a dinosaur icon makes this website at least 100% more cool. All you need to do is upload a favicon, or ICO File to the website's base directory. Jekyll will do the rest! I downloaded the dinosaur ICO file from [here](https://favicon.io/emoji-favicons/).
+
+## Google Analytics
+Wouldn't it be fun to track when people visit your website? With help from [this thread](https://stackoverflow.com/questions/17207458/how-to-add-google-analytics-tracking-id-to-github-pages) and [this guide](https://desiredpersona.com/google-analytics-jekyll/), I was able to get Google Analytics mostly working! 
+
 ## Other Quick Tips
 Want tables in markdown, but don't want to make them yourself? Go [here](https://www.tablesgenerator.com/markdown_tables) for easy copy paste tables!
 
